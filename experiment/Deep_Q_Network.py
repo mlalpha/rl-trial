@@ -72,7 +72,7 @@ def dqn(n_episodes=10000, max_t=1000, eps_start=1.0, eps_end=0.0001, eps_decay=0
     eps = eps_start                    # initialize epsilon
     max_score = 0
     max_t_interval = 250
-    max_t_dict = [500+(i+1)*100 for i in range(n_episodes//max_t_interval)]
+    max_t_dict = [150+(i+1)*150 for i in range(n_episodes//max_t_interval)]
     for i_episode in range(1, n_episodes+1):
         state = env.reset()
         state = preprocess(state).reshape(state_space[2], state_space[0], state_space[1])
@@ -82,7 +82,6 @@ def dqn(n_episodes=10000, max_t=1000, eps_start=1.0, eps_end=0.0001, eps_decay=0
             action = agent.act(state, eps)
             next_state, reward, done, _ = env.step(action)
             next_state = preprocess(next_state).reshape(state_space[2], state_space[0], state_space[1])
-            reward = np.sign(reward)
             agent.step(state, action, reward, next_state, done)
             state = next_state
             score += reward
@@ -129,7 +128,6 @@ for i in range(10):
         action = agent.act(state)
         env.render()
         state, reward, done, _ = env.step(action)
-        reward = np.sign(reward)
         if done:
             break 
             
