@@ -8,7 +8,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-BUFFER_SIZE = int(1e5)  # replay buffer size
+BUFFER_SIZE = int(3e4)  # replay buffer size
 BATCH_SIZE = 64         # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
@@ -45,15 +45,15 @@ class Agent():
     
     def step(self, state, action, reward, next_state, done):
         # Save experience in replay memory
-        self.memory.add(state, action, reward, next_state, done)
+        # self.memory.add(state, action, reward, next_state, done)
         
         # Learn every UPDATE_EVERY time steps.
         self.t_step = (self.t_step + 1) % UPDATE_EVERY
-        if self.t_step == 0:
-            # If enough samples are available in memory, get random subset and learn
-            if len(self.memory) > BATCH_SIZE:
-                experiences = self.memory.sample()
-                self.learn(experiences, GAMMA)
+        # if self.t_step == 0:
+        #     # If enough samples are available in memory, get random subset and learn
+        #     if len(self.memory) > BATCH_SIZE:
+        #         experiences = self.memory.sample()
+        #         self.learn(experiences, GAMMA)
 
     def act(self, state, eps=0.):
         """Returns actions for given state as per current policy.
@@ -74,7 +74,10 @@ class Agent():
             action = action_values.cpu().data.numpy()[0]
         else:
             action = np.random.uniform(0, size=self.action_size)
-
+        
+        # if self.action_size.ndim == 0:
+        #     return np.argmax(action)
+        
         action[action>0.5] = 1
         action[action<=0.5] = 0
         
@@ -151,7 +154,8 @@ class ReplayBuffer:
         """Randomly sample a batch of experiences from memory."""
         experiences = random.sample(self.memory, k=self.batch_size)
 
-        states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().to(device)
+        states = torch.from_numpy(np.array([e.state for e in experiences if e is not None])).float().to(device)
+        print(states.shape)
         actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).long().to(device)
         rewards = torch.from_numpy(np.vstack([e.reward for e in experiences if e is not None])).float().to(device)
         next_states = torch.from_numpy(np.vstack([e.next_state for e in experiences if e is not None])).float().to(device)
