@@ -25,14 +25,13 @@ from tool import preprocess
 
 # In[2]:
 
-env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=False)
+env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=True)
 
 
 # In[3]:
 
 env.seed(0)
 state_space = list(env.observation_space.shape)
-state_space[2] = 1
 action_space = env.action_space.n
 print('State shape: ', state_space)
 print('Number of actions: ', (1, action_space))
@@ -72,16 +71,17 @@ def dqn(n_episodes=10000, max_t=1000, eps_start=1.0, eps_end=0.0001, eps_decay=0
     eps = eps_start                    # initialize epsilon
     max_score = 0
     max_t_interval = 250
-    max_t_dict = [150+(i+1)*150 for i in range(n_episodes//max_t_interval)]
+    max_t_dict = [500+(i)*350 for i in range(n_episodes//max_t_interval)]
+    print(max_t_dict)
     for i_episode in range(1, n_episodes+1):
         state = env.reset()
-        state = preprocess(state).reshape(state_space[2], state_space[0], state_space[1])
+        state = state.reshape(state_space[2], state_space[0], state_space[1])
         score = 0
         max_t = max_t_dict[i_episode//1000]
         for t in range(max_t):
             action = agent.act(state, eps)
             next_state, reward, done, _ = env.step(action)
-            next_state = preprocess(next_state).reshape(state_space[2], state_space[0], state_space[1])
+            next_state = next_state.reshape(state_space[2], state_space[0], state_space[1])
             agent.step(state, action, reward, next_state, done)
             state = next_state
             score += reward
@@ -93,7 +93,7 @@ def dqn(n_episodes=10000, max_t=1000, eps_start=1.0, eps_end=0.0001, eps_decay=0
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % 100 == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
-        if np.mean(scores_window)>=max_score+0.5:
+        if np.mean(scores_window)>=max_score+50:
             max_score = np.mean(scores_window)
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode-100, np.mean(scores_window)))
             torch.save(agent.qnetwork_local.state_dict(), 'checkpoint.pth')
@@ -124,7 +124,7 @@ agent.qnetwork_local.load_state_dict(torch.load('checkpoint.pth'))
 for i in range(10):
     state = env.reset()
     for j in range(200):
-        state = preprocess(state).reshape(state_space[2], state_space[0], state_space[1])
+        state = state.reshape(state_space[2], state_space[0], state_space[1])
         action = agent.act(state)
         env.render()
         state, reward, done, _ = env.step(action)
