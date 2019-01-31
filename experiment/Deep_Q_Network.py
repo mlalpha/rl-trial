@@ -25,7 +25,7 @@ from tool import preprocess
 
 # In[2]:
 
-env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=True)
+env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=False)
 
 
 # In[3]:
@@ -77,7 +77,7 @@ def dqn(n_episodes=10000, max_t=1000, eps_start=1.0, eps_end=0.0001, eps_decay=0
         state = env.reset()
         state = state.reshape(state_space[2], state_space[0], state_space[1])
         score = 0
-        max_t = max_t_dict[i_episode//1000]
+        max_t = max_t_dict[i_episode//max_t_interval]
         for t in range(max_t):
             action = agent.act(state, eps)
             next_state, reward, done, _ = env.step(action)
@@ -95,7 +95,7 @@ def dqn(n_episodes=10000, max_t=1000, eps_start=1.0, eps_end=0.0001, eps_decay=0
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
         if np.mean(scores_window)>=max_score+50:
             max_score = np.mean(scores_window)
-            print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode-100, np.mean(scores_window)))
+            print('\nEnvironment enhanced in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode-100, np.mean(scores_window)))
             torch.save(agent.qnetwork_local.state_dict(), 'checkpoint.pth')
             # break
 
