@@ -17,9 +17,13 @@ class QNetwork(nn.Module):
         """
         super(QNetwork, self).__init__()
         self.seed = torch.manual_seed(seed)
-        self.conv1 = nn.Conv2d(3, 20, 2)
-        self.conv2 = nn.Conv2d(20, 20, 4)
-        flattened_size = (state_size[0]-2+1-4+1)*(state_size[1]-2+1-4+1)*20
+        filter_size_1 = 2
+        self.conv1 = nn.Conv2d(3, 20, filter_size_1)
+        filter_size_2 = 4
+        self.conv2 = nn.Conv2d(20, 20, filter_size_2)
+        flattened_size = (state_size[0]-filter_size_1+1-filter_size_2+1) \
+                         *(state_size[1]-filter_size_1+1-filter_size_2+1) \
+                         *20
         # print(flattened_size)
         self.fc1 = nn.Linear(
             flattened_size
