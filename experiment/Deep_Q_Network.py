@@ -1,34 +1,16 @@
-
-# coding: utf-8
-
-# # Deep Q-Network (DQN)
-# ---
-# In this notebook, you will implement a DQN agent with OpenAI Gym's LunarLander-v2 environment.
-# 
-# ### 1. Import the Necessary Packages
-
-# In[1]:
-
-import retro
+# import retro
+from retro_contest.local import make
 import random
 import torch
 import numpy as np
 from collections import deque
 import matplotlib.pyplot as plt
 from tool import preprocess
-# get_ipython().magic('matplotlib inline')
 
 
-# ### 2. Instantiate the Environment and Agent
-# 
-# Initialize the environment in the code cell below.
-
-# In[2]:
-env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=False)
-
-
-# In[3]:
-
+# Import environment and get env infor
+# env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=False)
+env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
 env.seed(0)
 state_space = list(env.observation_space.shape)
 action_space = env.action_space.n
@@ -36,24 +18,12 @@ print('State shape: ', state_space)
 print('Number of actions: ', (1, action_space))
 
 
-# Please refer to the instructions in `Deep_Q_Network.ipynb` if you would like to write your own DQN agent.  Otherwise, run the code cell below to load the solution files.
-
-# In[4]:
-
 from dqn_agent import Agent
-
 agent = Agent(state_size=state_space, action_size=action_space, seed=0)
+weight_fn = 'step_checkpoint.pth'
 
 
-# ### 3. Train the Agent with DQN
-# 
-# Run the code cell below to train the agent from scratch.  You are welcome to amend the supplied values of the parameters in the function, to try to see if you can get better performance!
-# 
-# Alternatively, you can skip to the next step below (**4. Watch a Smart Agent!**), to load the saved model weights from a pre-trained agent.
-
-# In[ ]:
-
-def dqn(n_episodes=3000, max_t=12000, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
+def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.0001, eps_decay=0.995):
     """Deep Q-Learning.
     
     Params
@@ -64,22 +34,22 @@ def dqn(n_episodes=3000, max_t=12000, eps_start=1.0, eps_end=0.01, eps_decay=0.9
         eps_end (float): minimum value of epsilon
         eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
     """
-    scores = []                        # list containing scores from each episode
-    scores_window = deque(maxlen=100)  # last 100 scores
-    eps = eps_start                    # initialize epsilon
-    max_score = 0
     max_t_interval = 250
-    max_t_dict = [1500+(i)*1000 for i in range(n_episodes//max_t_interval)]
-    print(max_t_dict)
-    max_t = max_t_dict[0]
+    scores = []                        # list containing scores from each episode
+    scores_window = deque(maxlen=max_t_interval)  # last 100 scores
+    eps = eps_start                    # initialize epsilon
+    max_mean_score = 0
+    # max_t_dict = [3000+(i)*200 for i in range(n_episodes//max_t_interval)]
+    # print(max_t_dict)
+    # max_t = max_t_dict[0]
     print('\nMax Step updated to: {:d}'.format(max_t))
     for i_episode in range(1, n_episodes+1):
         state = env.reset()
         state = state.reshape(state_space[2], state_space[0], state_space[1])
         score = 0
-        if i_episode%max_t_interval == 0:
-            max_t = max_t_dict[i_episode//max_t_interval]
-            print('\nMax Step updated to: {:d}'.format(max_t))
+        # if i_episode%max_t_interval == 0:
+        #     max_t = max_t_dict[i_episode//max_t_interval]
+        #     print('\nMax Step updated to: {:d}'.format(max_t))
         for t in range(max_t):
             action = agent.act(state, eps)
             next_state, reward, done, _ = env.step(action)
@@ -93,15 +63,18 @@ def dqn(n_episodes=3000, max_t=12000, eps_start=1.0, eps_end=0.01, eps_decay=0.9
         scores.append(score)              # save most recent score
         eps = max(eps_end, eps_decay*eps) # decrease epsilon
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
-        if i_episode % 100 == 0:
+        if i_episode % max_t_interval == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
-        if np.mean(scores_window)>=max_score+50:
-            max_score = np.mean(scores_window)
-            print('\nEnvironment enhanced in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
-            torch.save(agent.qnetwork_local.state_dict(), '3x3adaptive_step_checkpoint.pth')
+        if np.mean(scores_window) >= max_mean_score+500:
+            max_mean_score = np.mean(scores_window)
+            print('\nEnvironment enhanced in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode, max_mean_score))
+            torch.save(agent.qnetwork_local.state_dict(), weight_fn)
             # break
 
     return scores
+
+
+
 
 scores = dqn()
 
@@ -112,38 +85,4 @@ plt.plot(np.arange(len(scores)), scores)
 plt.ylabel('Score')
 plt.xlabel('Episode #')
 plt.show()
-
-
-# ### 4. Watch a Smart Agent!
-# 
-# In the next code cell, you will load the trained weights from file to watch a smart agent!
-
-# In[ ]:
-
-# load the weights from file
-# agent.qnetwork_local.load_state_dict(torch.load('checkpoint.pth'))
-
-# for i in range(10):
-#     state = env.reset()
-#     for j in range(200):
-#         state = state.reshape(state_space[2], state_space[0], state_space[1])
-#         action = agent.act(state)
-#         env.render()
-#         state, reward, done, _ = env.step(action)
-#         if done:
-#             break 
-            
-# env.close()
-
-
-# ### 5. Explore
-# 
-# In this exercise, you have implemented a DQN agent and demonstrated how to use it to solve an OpenAI Gym environment.  To continue your learning, you are encouraged to complete any (or all!) of the following tasks:
-# - Amend the various hyperparameters and network architecture to see if you can get your agent to solve the environment faster.  Once you build intuition for the hyperparameters that work well with this environment, try solving a different OpenAI Gym task with discrete actions!
-# - You may like to implement some improvements such as prioritized experience replay, Double DQN, or Dueling DQN! 
-# - Write a blog post explaining the intuition behind the DQN algorithm and demonstrating how to use it to solve an RL environment of your choosing.  
-
-# In[ ]:
-
-
 
