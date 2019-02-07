@@ -9,11 +9,11 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 BUFFER_SIZE = int(5e3)  # replay buffer size
-BATCH_SIZE = 128        # minibatch size
+BATCH_SIZE = 64         # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
 LR = 5e-4               # learning rate 
-UPDATE_EVERY = 4        # how often to update the network
+UPDATE_EVERY = 500      # how often to update the network
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -40,21 +40,21 @@ class Agent():
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=LR)
 
         # Replay memory
-        # self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
+        self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, seed)
         # Initialize time step (for updating every UPDATE_EVERY steps)
         self.t_step = 0
     
     def step(self, state, action, reward, next_state, done):
         # Save experience in replay memory
-        # self.memory.add(state, action, reward, next_state, done)
+        self.memory.add(state, action, reward, next_state, done)
         
         # Learn every UPDATE_EVERY time steps.
         self.t_step = (self.t_step + 1) % UPDATE_EVERY
-        # if self.t_step == 0:
-        #     # If enough samples are available in memory, get random subset and learn
-        #     if len(self.memory) > BATCH_SIZE:
-        #         experiences = self.memory.sample()
-        #         self.learn(experiences, GAMMA)
+        if self.t_step == 0:
+            # If enough samples are available in memory, get random subset and learn
+            if len(self.memory) > BATCH_SIZE:
+                experiences = self.memory.sample()
+                self.learn(experiences, GAMMA)
 
     def act(self, state, eps=0.):
         """Returns actions for given state as per current policy.
@@ -76,8 +76,8 @@ class Agent():
         else:
             action = np.random.uniform(0, size=self.action_size)
         
-        # if self.action_size.ndim == 0:
-        #     return np.argmax(action)
+        if type(self.action_size) == int:
+            return np.argmax(action)
         
         action[action>0.5] = 1
         action[action<=0.5] = 0
