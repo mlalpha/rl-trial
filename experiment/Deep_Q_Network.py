@@ -1,5 +1,6 @@
 # import retro
-from retro_contest.local import make
+# from retro_contest.local import make
+from sonic_util import make_env
 import random
 import torch
 import numpy as np
@@ -10,12 +11,13 @@ from tool import preprocess
 
 # Import environment and get env infor
 # env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=False)
-env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
+# env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
+env = make_env(stack=False, scale_rew=False)
 env.seed(0)
 state_space = list(env.observation_space.shape)
 action_space = env.action_space.n
 print('State shape: ', state_space)
-print('Number of actions: ', (1, action_space))
+print('Number of actions: ', action_space)
 
 
 from dqn_agent import Agent
