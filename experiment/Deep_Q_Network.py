@@ -13,7 +13,7 @@ from tool import preprocess
 # env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=False)
 # env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
 env = make_env(stack=False, scale_rew=False)
-env.seed(0)
+# env.seed(0)
 state_space = list(env.observation_space.shape)
 action_space = env.action_space.n
 print('State shape: ', state_space)
@@ -23,9 +23,9 @@ print('Number of actions: ', action_space)
 from dqn_agent import Agent
 agent = Agent(state_size=state_space, action_size=action_space, seed=0)
 weight_fn = 'step_checkpoint.pth'
+latest_fn = 'latest_%s'%weight_fn
 
-
-def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.0001, eps_decay=0.995):
+def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
     """Deep Q-Learning.
     
     Params
@@ -52,7 +52,7 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.0001, eps_decay=0
         # if i_episode%max_t_interval == 0:
         #     max_t = max_t_dict[i_episode//max_t_interval]
         #     print('\nMax Step updated to: {:d}'.format(max_t))
-        for t in range(max_t):
+        for _ in range(max_t):
             action = agent.act(state, eps)
             next_state, reward, done, _ = env.step(action)
             next_state = next_state.reshape(state_space[2], state_space[0], state_space[1])
@@ -67,6 +67,7 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.0001, eps_decay=0
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % max_t_interval == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
+            torch.save(agent.qnetwork_local.state_dict(), latest_fn)
         if np.mean(scores_window) >= max_mean_score+500:
             max_mean_score = np.mean(scores_window)
             print('\nEnvironment enhanced in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode, max_mean_score))
