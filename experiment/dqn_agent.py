@@ -15,13 +15,13 @@ TAU = 1e-3              # for soft update of target parameters
 LR = 5e-5               # learning rate 
 UPDATE_EVERY = 500      # how often to update the network
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print(device)
 
 class Agent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, seed, experience_replay=False):
+    def __init__(self, state_size, action_size, seed, multi_action=True, experience_replay=False):
         """Initialize an Agent object.
         
         Params
@@ -33,6 +33,7 @@ class Agent():
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(seed)
+        self.multi_action = multi_action
         self.experience_replay = experience_replay
 
         # Q-Network
@@ -79,7 +80,7 @@ class Agent():
         else:
             action = np.random.uniform(0, size=self.action_size)
         
-        if type(self.action_size) == int:
+        if self.multi_action == False:
             return np.argmax(action)
         
         action[action>0.5] = 1

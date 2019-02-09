@@ -1,5 +1,5 @@
 # import retro
-# from retro_contest.local import make
+from retro_contest.local import make
 from sonic_util import make_env
 import random
 import torch
@@ -11,21 +11,21 @@ from tool import preprocess
 
 # Import environment and get env infor
 # env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=False)
-# env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
-env = make_env(stack=False, scale_rew=False)
+env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
+# env = make_env(stack=False, scale_rew=False)
 # env.seed(0)
 state_space = list(env.observation_space.shape)
 action_space = env.action_space.n
 print('State shape: ', state_space)
-print('Number of actions: ', action_space)
+print('Number of actions: ', [1, action_space])
 
 
 from dqn_agent import Agent
-agent = Agent(state_size=state_space, action_size=action_space, seed=0)
+agent = Agent(state_size=state_space, action_size=action_space, seed=0, multi_action=True)
 weight_fn = 'step_checkpoint.pth'
 latest_fn = 'latest_%s'%weight_fn
 
-def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.01, eps_decay=0.995):
+def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.999):
     """Deep Q-Learning.
     
     Params
@@ -36,7 +36,7 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.01, eps_decay=0.9
         eps_end (float): minimum value of epsilon
         eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
     """
-    max_t_interval = 250
+    max_t_interval = 50
     scores = []                        # list containing scores from each episode
     scores_window = deque(maxlen=max_t_interval)  # last 100 scores
     eps = eps_start                    # initialize epsilon
@@ -60,7 +60,8 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.01, eps_decay=0.9
             state = next_state
             score += reward
             if done:
-                break 
+                break
+
         scores_window.append(score)       # save most recent score
         scores.append(score)              # save most recent score
         eps = max(eps_end, eps_decay*eps) # decrease epsilon
