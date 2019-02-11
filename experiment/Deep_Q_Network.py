@@ -24,8 +24,9 @@ print('Number of actions: ', [1, action_space])
 from dqn_agent import Agent
 agent = Agent(state_size=state_space, action_size=action_space, 
                 seed=0, multi_action=multi_action, experience_replay=True)
-weight_fn = 'discrete_explore_step_checkpoint.pth'
-latest_fn = 'latest_%s'%weight_fn
+weight_fn = 'checkpoint/discrete_explore_step'
+latest_fn = '%s_epoch_%i.pth'
+best_weight_fn = weight_fn+'.pth'
 
 print('-----------Weight name: {}--------------'.format(weight_fn))
 
@@ -40,7 +41,7 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.99
         eps_end (float): minimum value of epsilon
         eps_decay (float): multiplicative factor (per episode) for decreasing epsilon
     """
-    max_t_interval = 50
+    max_t_interval = 250
     scores = []                        # list containing scores from each episode
     scores_window = deque(maxlen=max_t_interval)  # last 100 scores
     eps = eps_start                    # initialize epsilon
@@ -66,11 +67,11 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.99
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % max_t_interval == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
-            torch.save(agent.qnetwork_local.state_dict(), latest_fn)
+            torch.save(agent.qnetwork_local.state_dict(), latest_fn%(weight_fn, i_episode))
         if np.mean(scores_window) >= max_mean_score+500:
             max_mean_score = np.mean(scores_window)
             print('\nEnvironment enhanced in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode, max_mean_score))
-            torch.save(agent.qnetwork_local.state_dict(), weight_fn)
+            torch.save(agent.qnetwork_local.state_dict(), best_weight_fn)
             # break
 
     return scores
