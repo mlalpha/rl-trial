@@ -11,8 +11,9 @@ from tool import preprocess
 
 # Import environment and get env infor
 # env = retro.make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', record=False)
-env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
-# env = make_env(stack=False, scale_rew=False)
+# env, multi_action = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1'), True
+env, multi_action = make_env(stack=False, scale_rew=False), False
+
 # env.seed(0)
 state_space = list(env.observation_space.shape)
 action_space = env.action_space.n
@@ -21,9 +22,12 @@ print('Number of actions: ', [1, action_space])
 
 
 from dqn_agent import Agent
-agent = Agent(state_size=state_space, action_size=action_space, seed=0, multi_action=True)
-weight_fn = 'step_checkpoint.pth'
+agent = Agent(state_size=state_space, action_size=action_space, 
+                seed=0, multi_action=multi_action, experience_replay=True)
+weight_fn = 'discrete_explore_step_checkpoint.pth'
 latest_fn = 'latest_%s'%weight_fn
+
+print('-----------Weight name: {}--------------'.format(weight_fn))
 
 def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.999):
     """Deep Q-Learning.
@@ -41,17 +45,11 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.99
     scores_window = deque(maxlen=max_t_interval)  # last 100 scores
     eps = eps_start                    # initialize epsilon
     max_mean_score = 0
-    # max_t_dict = [3000+(i)*200 for i in range(n_episodes//max_t_interval)]
-    # print(max_t_dict)
-    # max_t = max_t_dict[0]
     print('\nMax Step updated to: {:d}'.format(max_t))
     for i_episode in range(1, n_episodes+1):
         state = env.reset()
         state = state.reshape(state_space[2], state_space[0], state_space[1])
         score = 0
-        # if i_episode%max_t_interval == 0:
-        #     max_t = max_t_dict[i_episode//max_t_interval]
-        #     print('\nMax Step updated to: {:d}'.format(max_t))
         for _ in range(max_t):
             action = agent.act(state, eps)
             next_state, reward, done, _ = env.step(action)
