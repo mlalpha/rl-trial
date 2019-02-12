@@ -19,12 +19,14 @@ class QNetwork(nn.Module):
         self.seed = torch.manual_seed(seed)
         filter_size_1 = 2
         self.conv1 = nn.Conv2d(3, 20, filter_size_1)
+        self.conv1_bn = nn.BatchNorm2d(20)
         filter_size_2 = 4
         self.conv2 = nn.Conv2d(20, 20, filter_size_2)
-        flattened_size = (state_size[0]-filter_size_1+1-filter_size_2+1) \
-                         *(state_size[1]-filter_size_1+1-filter_size_2+1) \
-                         *20
-        # print(flattened_size)
+        self.conv2_bn = nn.BatchNorm2d(20)
+        flattened_size = (state_size[0]-filter_size_1-filter_size_2-2) \
+                         *(state_size[1]-filter_size_1-filter_size_2-2) \
+                         *20 // 16
+        print(flattened_size)
         self.fc1 = nn.Linear(
             flattened_size
             , fc1_units)
@@ -34,8 +36,8 @@ class QNetwork(nn.Module):
 
     def forward(self, state):
         """Build a network that maps state -> action values."""
-        x = F.relu(self.conv1(state))
-        x = F.relu(self.conv2(x))
+        x = F.relu(F.max_pool2d(self.conv1_bn(self.conv1(state)), 2))
+        x = F.relu(F.max_pool2d(self.conv2_bn(self.conv2(x)), 2))
         x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
