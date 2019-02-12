@@ -43,6 +43,8 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.99
     """
     scores = []                        # list containing scores from each episode
     scores_window = deque(maxlen=max_t_interval)  # last 100 scores
+    Q_values_window = deque(maxlen=max_t_interval)
+
     eps = eps_start                    # initialize epsilon
     max_mean_score = 0
     print('\nMax Step updated to: {:d}'.format(max_t))
@@ -50,8 +52,12 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.99
         state = env.reset()
         state = state.reshape(state_space[2], state_space[0], state_space[1])
         score = 0
+        max_Q_value = 0
         for _ in range(max_t):
-            action = agent.act(state, eps)
+            action, Q_value = agent.act(state, eps)
+            if Q_value != None:
+                if score + Q_value > max_Q_value:
+                    max_Q_value = score + Q_value
             next_state, reward, done, _ = env.step(action)
             next_state = next_state.reshape(state_space[2], state_space[0], state_space[1])
             agent.step(state, action, reward, next_state, done)
@@ -63,7 +69,11 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.99
         scores_window.append(score)       # save most recent score
         scores.append(score)              # save most recent score
         eps = max(eps_end, eps_decay*eps) # decrease epsilon
-        print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
+        Q_values_window.append(max_Q_value)
+        if max_Q_value != 0:
+            print('\rEpisode {}\tAverage Score: {:.2f} Q_value: {:.2f}'.format(i_episode, np.mean(scores_window),np.mean(Q_values_window)), end="")
+        else:
+            print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % max_t_interval == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
             torch.save(agent.qnetwork_local.state_dict(), latest_fn%(weight_fn, i_episode))

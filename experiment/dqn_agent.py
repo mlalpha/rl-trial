@@ -72,6 +72,7 @@ class Agent():
         self.qnetwork_local.eval()
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
+            Q_values = (action_values.detach().max(1)[0]).cpu().data.numpy()[0]
         self.qnetwork_local.train()
 
         # Epsilon-greedy action selection
@@ -81,12 +82,12 @@ class Agent():
             action = np.random.uniform(0, size=self.action_size)
         
         if self.multi_action == False:
-            return np.argmax(action)
+            return np.argmax(action), Q_values
         
         action[action>0.5] = 1
         action[action<=0.5] = 0
         
-        return action
+        return action, None
 
 
     def learn(self, experiences, gamma):
