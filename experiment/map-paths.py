@@ -27,8 +27,8 @@ def render(file):
             for i in range(env.num_buttons):
                 keys.append(movie.get_key(i, p))
         _obs, _rew, _done, _info = env.step(keys)
-        y = _info['y'] // 20
-        x = _info['x'] // 20
+        y = _info['y']
+        x = _info['x'] 
         highlight = [[[min(x[0][0]+hf,255), min(x[0][1]+hf,255), min(x[0][2]+hf,255)],
         [min(x[1][0]+hf,255), min(x[1][1]+hf,255), min(x[1][2]+hf,255)],
         [min(x[2][0]+hf,255), min(x[2][1]+hf,255), min(x[2][2]+hf,255)],
