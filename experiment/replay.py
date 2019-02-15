@@ -12,7 +12,7 @@ def recording(recording_env, recording_agent, weight_name):
     env = Monitor(recording_env, './video_%s'%(weight_name), force=True)
     # watch an trained agent
     window = []
-    n_epsiode = 2
+    n_epsiode = 5
     for i_episode in range(n_epsiode):
         # add Recording tigger
         state = env.reset()
@@ -30,8 +30,18 @@ def recording(recording_env, recording_agent, weight_name):
     print('Avg score {}'.format(np.mean(window)))
 
 
-env, multi_action = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1'), True
-# env, multi_action = make_env(stack=False, scale_rew=False), False
+def checkpoint_generator(epoch, weight_fn = 'checkpoint/discrete_explore_step'):
+    latest_fn = '%s_epoch_%i.pth'
+    best_weight_fn = weight_fn+'.pth'
+    return latest_fn%(weight_fn, epoch)
+
+
+def build_env():
+    #env, multi_action = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1'), True
+    env, multi_action = make_env(stack=False, scale_rew=False), False
+    return env, multi_action
+
+env, multi_action = build_env()
 
 # for normal record speed
 
@@ -48,17 +58,17 @@ from dqn_agent import Agent
 agent = Agent(state_size=state_space, action_size=action_space, 
                 seed=0, multi_action=multi_action, experience_replay=True)
 
-
-def checkpoint_generator(epoch):
-    weight_fn = 'checkpoint/discrete_explore_step'
-    latest_fn = '%s_epoch_%i.pth'
-    best_weight_fn = weight_fn+'.pth'
-    return latest_fn%(weight_fn, epoch)
-
-# load the weights from file
-agent.qnetwork_local.load_state_dict(torch.load('checkpoint/sigmoid_explore_step_checkpoint.pth'))
-
-for i in range(10):
+'''
+for i in range(100, 4001, 100):
+    wn = checkpoint_generator(i)
+    agent.qnetwork_local.load_state_dict(torch.load(wn))
     recording(env, agent, 'agent_%i'%i)
     env.close()
-    env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
+    env, _ = build_env()
+'''
+
+
+# load the weights from file
+agent.qnetwork_local.load_state_dict(torch.load('checkpoint/discrete_explore_step.pth'))
+recording(env, agent, 'agent_best')
+env.close()
