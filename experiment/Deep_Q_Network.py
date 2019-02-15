@@ -30,7 +30,7 @@ best_weight_fn = weight_fn+'.pth'
 
 print('-----------Weight name: {}--------------'.format(weight_fn))
 
-def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.999, max_t_interval = 250):
+def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.999, max_t_interval = 100):
     """Deep Q-Learning.
     
     Params
@@ -44,7 +44,7 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.99
     scores = []                        # list containing scores from each episode
     scores_window = deque(maxlen=max_t_interval)  # last 100 scores
     eps = eps_start                    # initialize epsilon
-    max_mean_score = 0
+    max_mean_score = 1500
     print('\nMax Step updated to: {:d}'.format(max_t))
     for i_episode in range(1, n_episodes+1):
         state = env.reset()
