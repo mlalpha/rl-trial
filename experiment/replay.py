@@ -19,7 +19,7 @@ def recording(recording_env, recording_agent, weight_name):
         total_score = 0
         for j in range(MAX_STEP):
             state = state.reshape(state_space[2], state_space[0], state_space[1])
-            action = recording_agent.act(state)
+            action = recording_agent.act(state)[0]
     #         env.render()
             state, reward, done, _ = env.step(action)
             total_score += reward
@@ -58,14 +58,14 @@ from dqn_agent import Agent
 agent = Agent(state_size=state_space, action_size=action_space, 
                 seed=0, multi_action=multi_action, experience_replay=True)
 
-'''
-for i in range(100, 4001, 100):
+
+for i in range(100, 10001, 100):
     wn = checkpoint_generator(i)
     agent.qnetwork_local.load_state_dict(torch.load(wn))
     recording(env, agent, 'agent_%i'%i)
     env.close()
     env, _ = build_env()
-'''
+
 
 
 # load the weights from file
