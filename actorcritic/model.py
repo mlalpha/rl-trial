@@ -45,6 +45,7 @@ class Actor(object):
 
         self.s = tf.placeholder(tf.float32, input_shape, "state")
         self.a = tf.placeholder(tf.int32, [None, 1], "act")
+        self.flatten_act = tf.placeholder(tf.int32, [None], "flatten_act")
         self.td_error = tf.placeholder(tf.float32, [None, 1], "td_error")  # TD_error
 
         with tf.variable_scope('Actor'):
@@ -95,16 +96,17 @@ class Actor(object):
             )
 
         with tf.variable_scope('exp_v'):
-            log_prob = tf.log(self.acts_prob[None, self.a])
+            log_prob = tf.log(tf.gather(self.acts_prob, self.flatten_act, axis = 1))
             self.exp_v = tf.reduce_mean(log_prob * self.td_error)  # advantage (TD_error) guided loss
-
         with tf.variable_scope('train'):
             self.train_op = tf.train.AdamOptimizer(lr).minimize(-self.exp_v)  # minimize(-exp_v) = maximize(exp_v)
 
     def learn(self, s, a, td):
         # s = s[np.newaxis, :]
-        feed_dict = {self.s: s, self.a: a, self.td_error: td}
-        _, exp_v = self.sess.run([self.train_op, self.exp_v], feed_dict)
+        flatten_act = a.flatten()
+        feed_dict = {self.s: s, self.a: a, self.flatten_act: flatten_act, self.td_error: td}
+        _, exp_v, acts_prob = self.sess.run([self.train_op, self.exp_v, self.acts_prob], feed_dict)
+        print(exp_v, acts_prob, flatten_act)
         return exp_v
 
     def choose_action(self, s):
