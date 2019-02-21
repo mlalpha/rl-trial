@@ -18,7 +18,7 @@ def make_env(stack=True, scale_rew=True):
     env = SonicDiscretizer(env)
     if scale_rew:
         env = RewardScaler(env)
-    # env = WarpFrame(env)
+    env = WarpFrame(env)
     if stack:
         env = FrameStack(env, 4)
     return env
