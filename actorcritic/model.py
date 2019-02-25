@@ -8,21 +8,21 @@ from collections import deque
 from memory import ReplayBuffer
 import datetime
 
-# np.random.seed(2)
-# tf.set_random_seed(2)  # reproducible
+np.random.seed(714)
+tf.set_random_seed(714)  # reproducible
 
 # Hyper Parameters
 OUTPUT_GRAPH = True
-MAX_EPISODE = 6000
+MAX_EPISODE = 10000
 DISPLAY_REWARD_THRESHOLD = 3000  # renders environment if total episode reward is greater then this threshold
 MAX_EP_STEPS = 4500  # maximum time step in one episode
 RENDER = False  # rendering wastes time
-GAMMA = 0.9  # reward discount in TD error
-LR_A = 0.000001  # learning rate for actor
-LR_C = 0.0001  # learning rate for critic
-BUFFER_SIZE = 10000
-BATCH_SIZE = 16
-UPDATE_EVERY = 50
+GAMMA = 0.99  # reward discount in TD error
+LR_A = 1e-12  # learning rate for actor
+LR_C = 1e-12  # learning rate for critic
+BUFFER_SIZE = 5000
+BATCH_SIZE = 32
+UPDATE_EVERY = 100
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=1)
 
 env = make_env(stack=False, scale_rew=False)
@@ -90,8 +90,8 @@ class Actor(object):
 
             fc1 = tf.layers.dense(
                 inputs=flattened_vector,
-                units=64,  # number of hidden units
-                activation=tf.nn.softmax,
+                units=128,  # number of hidden units
+                activation=tf.nn.sigmoid,
                 name='fc1'
             )
 
@@ -99,7 +99,7 @@ class Actor(object):
                 inputs=fc1,
                 units=action_size,  # output units
                 activation=tf.nn.softmax,  # get action probabilities
-                kernel_initializer=tf.random_normal_initializer(0.1, .1),  # weights
+                kernel_initializer=tf.random_normal_initializer(0.1, .2),  # weights
                 bias_initializer=tf.constant_initializer(0.1),  # biases
                 name='actions_prob'
             )
@@ -150,6 +150,9 @@ class Critic(object):
         self.v_ = tf.placeholder(tf.float32, [None, 1], "v_next")
         self.r = tf.placeholder(tf.float32, [None, 1], 'r')
 
+        tf.summary.scalar('avg_next_v', tf.reduce_mean(self.v_))
+        tf.summary.scalar('avg_r', tf.reduce_mean(self.r))
+
         with tf.variable_scope('Critic'):
             conv1 = tf.layers.conv2d(
                 inputs=self.s,
@@ -189,7 +192,7 @@ class Critic(object):
             fc1 = tf.layers.dense(
                 inputs=flattened_vector,
                 units=64,  # number of hidden units
-                activation=tf.nn.softmax,
+                activation=tf.nn.relu,
                 name='fc1'
             )
 
@@ -237,7 +240,7 @@ critic = Critic(sess, state_size=state_space,
                 lr=LR_C)  # we need a good teacher, so the teacher should learn faster than the actor
 
 timestampe = datetime.datetime.now().strftime("%Y_%m_%d_%H%M")
-writer = tf.summary.FileWriter("./logs/%s"%timestampe, sess.graph)
+writer = tf.summary.FileWriter("./logs/GreenHillZone_Act1/%s"%timestampe, sess.graph)
 sess.run(tf.global_variables_initializer())
 
 saver = tf.train.Saver()
@@ -252,17 +255,26 @@ memory = ReplayBuffer(action_space, BUFFER_SIZE, BATCH_SIZE, 714)
 
 
 # RENDER = False
-max_mean_score = 0
+# eplison = 0.7
+# decay = 0.95
+# min_eplison = 0.05
+max_mean_score = 2000
 total_timestep = 0
 for i_episode in range(1, MAX_EPISODE + 1):
     state = env.reset()
     timestep = 1
     track_r = []
     while True:
-        # if RENDER: 
-        #     env.render()
+        if RENDER: 
+            env.render()
 
+        # action = None
+        # if np.random.uniform() > eplison:
         action = actor.choose_action(reshape_state(state))
+        # else:
+            # action = env.action_space.sample()
+
+        # eplison = min(min_eplison, eplison*decay)
 
         next_state, reward, done, info = env.step(action)
 
@@ -270,7 +282,6 @@ for i_episode in range(1, MAX_EPISODE + 1):
         track_r.append(reward)
 
         state = next_state
-        print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
 
         if timestep % UPDATE_EVERY == 0:
             if len(memory) > BATCH_SIZE:
@@ -291,6 +302,7 @@ for i_episode in range(1, MAX_EPISODE + 1):
             #     RENDER = True
             scores_window.append(ep_rs_sum)  # save most recent score
             scores.append(ep_rs_sum)  # save most recent score
+            print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
             if i_episode % max_t_interval == 0:
                 print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
             if len(scores_window) > max_t_interval and np.mean(scores_window) >= max_mean_score + 500:
