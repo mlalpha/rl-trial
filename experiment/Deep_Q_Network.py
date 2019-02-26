@@ -20,17 +20,24 @@ action_space = env.action_space.n
 print('State shape: ', state_space)
 print('Number of actions: ', [1, action_space])
 
+BUFFER_SIZE = int(5e3)  # replay buffer size
+BATCH_SIZE = 16         # minibatch size
+GAMMA = 0.99            # discount factor
+TAU = 1e-3              # for soft update of target parameters
+LR = 5e-5               # learning rate 
+UPDATE_EVERY = 500      # how often to update the network
 
 from dqn_agent import Agent
 agent = Agent(state_size=state_space, action_size=action_space, 
                 seed=0, multi_action=multi_action, experience_replay=True)
+agent.set_paramter(BUFFER_SIZE, BATCH_SIZE, GAMMA, TAU, LR, UPDATE_EVERY)
 weight_fn = 'checkpoint/discrete_explore_step'
 latest_fn = '%s_epoch_%i.pth'
 best_weight_fn = weight_fn+'.pth'
 
 print('-----------Weight name: {}--------------'.format(weight_fn))
 
-def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.1, eps_decay=0.999, max_t_interval = 100):
+def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.2, eps_decay=0.99999, max_t_interval = 100):
     """Deep Q-Learning.
     
     Params

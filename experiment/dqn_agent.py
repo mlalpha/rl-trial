@@ -35,14 +35,12 @@ class Agent():
         """
         self.state_size = state_size
         self.action_size = action_size
-        self.seed = random.seed(seed)
+        self.seed = seed
         self.multi_action = multi_action
         self.experience_replay = experience_replay
 
+        random.seed(seed)
 
-        # Replay memory
-        if experience_replay == True:
-            self.memory = ReplayBuffer(action_size, self.BUFFER_SIZE, self.BATCH_SIZE, seed)
         # Initialize time step (for updating every UPDATE_EVERY steps)
         self.t_step = 0
     '''
@@ -61,6 +59,10 @@ class Agent():
         self.LR = LR
         self.UPDATE_EVERY = UPDATE_EVERY
 
+
+        # Replay memory
+        if self.experience_replay == True:
+            self.memory = ReplayBuffer(self.action_size, self.BUFFER_SIZE, self.BATCH_SIZE, self.seed)
 
         # Q-Network
         self.qnetwork_local = QNetwork(self.state_size, self.action_size, self.seed).to(device)
