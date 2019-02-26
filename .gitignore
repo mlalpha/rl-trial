@@ -1,3 +1,6 @@
-*.pth
 *.pyc
+*.pth
+*.bk2
+*.json
+*.mp4
 .vscode
