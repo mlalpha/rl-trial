@@ -9,6 +9,13 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 
+BUFFER_SIZE = int(5e3)  # replay buffer size
+BATCH_SIZE = 16         # minibatch size
+GAMMA = 0.99            # discount factor
+TAU = 1e-3              # for soft update of target parameters
+LR = 5e-5               # learning rate 
+UPDATE_EVERY = 500      # how often to update the network
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -85,6 +92,7 @@ class Agent():
         self.qnetwork_local.eval()
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
+            Q_values = (action_values.detach().max(1)[0]).cpu().data.numpy()[0]
         self.qnetwork_local.train()
 
         # Epsilon-greedy action selection
@@ -94,7 +102,12 @@ class Agent():
             action = np.random.uniform(0, size=self.action_size)
 
         if self.multi_action == False:
-            return np.argmax(action)
+            return np.argmax(action), Q_values
+        
+        action[action>0.5] = 1
+        action[action<=0.5] = 0
+        
+        return action, None
 
         action[action > 0.5] = 1
         action[action <= 0.5] = 0
