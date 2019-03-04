@@ -5,7 +5,7 @@ import torch.nn.functional as F
 class QNetwork(nn.Module):
     """Actor (Policy) Model."""
 
-    def __init__(self, state_size, action_size, seed, fc1_units=64, fc2_units=64):
+    def __init__(self, state_size, action_size, seed, fc1_units=256, fc2_units=128):
         """Initialize parameters and build model.
         Params
         ======
@@ -26,7 +26,7 @@ class QNetwork(nn.Module):
         flattened_size = (state_size[0]-filter_size_1-filter_size_2-2) \
                          *(state_size[1]-filter_size_1-filter_size_2-2) \
                          *20 // 16
-        print(flattened_size)
+        # print(flattened_size)
         self.fc1 = nn.Linear(
             flattened_size
             , fc1_units)

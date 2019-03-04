@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 import numpy as np
 import tensorflow as tf
 # import gym
@@ -18,14 +18,14 @@ DISPLAY_REWARD_THRESHOLD = 3000  # renders environment if total episode reward i
 MAX_EP_STEPS = 4500  # maximum time step in one episode
 RENDER = False  # rendering wastes time
 GAMMA = 0.99  # reward discount in TD error
-LR_A = 1e-12  # learning rate for actor
-LR_C = 1e-12  # learning rate for critic
+LR_A = 1e-9  # learning rate for actor
+LR_C = 1e-6  # learning rate for critic
 BUFFER_SIZE = 5000
 BATCH_SIZE = 32
 UPDATE_EVERY = 100
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=1)
+# gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=1)
 
-env = make_env(stack=False, scale_rew=False)
+env = make_env(stack=False, scale_rew=True)
 # env.seed(1)  # reproducible
 # env = env.unwrapped
 
@@ -72,7 +72,7 @@ class Actor(object):
 
             conv2 = tf.layers.conv2d(
                 inputs=pool1,
-                filters=20,
+                filters=40,
                 kernel_size=[4, 4],
                 padding="same",
                 activation=tf.nn.relu,
@@ -231,7 +231,8 @@ class Critic(object):
         return td_error, summary
 
 
-sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+# sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
+sess = tf.Session()
 
 
 
@@ -264,6 +265,7 @@ for i_episode in range(1, MAX_EPISODE + 1):
     state = env.reset()
     timestep = 1
     track_r = []
+    negative_reward = 0
     while True:
         if RENDER: 
             env.render()
@@ -277,28 +279,29 @@ for i_episode in range(1, MAX_EPISODE + 1):
         # eplison = min(min_eplison, eplison*decay)
 
         next_state, reward, done, info = env.step(action)
+        
+        if reward < 0:
+            negative_reward += reward
+            reward = 0
 
         memory.add(state, action, reward, next_state, done)
         track_r.append(reward)
 
         state = next_state
 
-        if timestep % UPDATE_EVERY == 0:
-            if len(memory) > BATCH_SIZE:
-                experiences = memory.sample()
-                td_error, summary = critic.learn(experiences[0], experiences[2],
-                                        experiences[3])  # gradient = grad[r + gamma * V(s_) - V(s)]
-                writer.add_summary(summary, total_timestep)                     
-                _ = actor.learn(experiences[0], experiences[1], td_error)  # true_gradient = grad[logPi(s,a) * td_error]
-                # writer.add_summary(summary, total_timestep)
-                    
+        # gradient = grad[r + gamma * V(s_) - V(s)] 
+        td_error, summary = critic.learn(reshape_state(state), [[reward]], reshape_state(next_state))
+        writer.add_summary(summary, total_timestep)
+
+        # true_gradient = grad[logPi(s,a) * td_error]
+        _ = actor.learn(reshape_state(state), np.array([[action]]), td_error)
 
         timestep += 1
         total_timestep += 1
 
         if done or timestep > MAX_EP_STEPS:
-            ep_rs_sum = sum(track_r)
-            # if ep_rs_sum > 1500:
+            ep_rs_sum = sum(track_r) + negative_reward
+            # if ep_rs_sum > 5000:
             #     RENDER = True
             scores_window.append(ep_rs_sum)  # save most recent score
             scores.append(ep_rs_sum)  # save most recent score

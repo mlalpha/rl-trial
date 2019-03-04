@@ -14,7 +14,7 @@ from tool import preprocess
 # env, multi_action = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1'), True
 env, multi_action = make_env(stack=False, scale_rew=False), False
 
-# env.seed(0)
+env.seed(1)
 state_space = list(env.observation_space.shape)
 action_space = env.action_space.n
 print('State shape: ', state_space)
@@ -24,7 +24,7 @@ BUFFER_SIZE = int(5e3)  # replay buffer size
 BATCH_SIZE = 16         # minibatch size
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
-LR = 5e-5               # learning rate 
+LR = 1e-6               # learning rate 
 UPDATE_EVERY = 500      # how often to update the network
 
 from dqn_agent import Agent
@@ -37,7 +37,7 @@ best_weight_fn = weight_fn+'.pth'
 
 print('-----------Weight name: {}--------------'.format(weight_fn))
 
-def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.2, eps_decay=0.99999, max_t_interval = 100):
+def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.2, eps_decay=0.99, max_t_interval = 100):
     """Deep Q-Learning.
     
     Params
@@ -60,25 +60,32 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.2, eps_decay=0.99
         state = state.reshape(state_space[2], state_space[0], state_space[1])
         score = 0
         max_Q_value = 0
+        negative_reward = 0
         for _ in range(max_t):
             action, Q_value = agent.act(state, eps)
             if Q_value != None:
                 if score + Q_value > max_Q_value:
                     max_Q_value = score + Q_value
             next_state, reward, done, _ = env.step(action)
+            if reward < 0:
+                negative_reward += reward
+                reward = 0
             next_state = next_state.reshape(state_space[2], state_space[0], state_space[1])
             agent.step(state, action, reward, next_state, done)
             state = next_state
             score += reward
             if done:
                 break
+        score += negative_reward
 
         scores_window.append(score)       # save most recent score
         scores.append(score)              # save most recent score
         eps = max(eps_end, eps_decay*eps) # decrease epsilon
         Q_values_window.append(max_Q_value)
+        if score > 5000:
+            print('\rEpisode {}\tScore: {:.2f}'.format(i_episode, score), end="")
         if max_Q_value != 0:
-            print('\rEpisode {}\tAverage Score: {:.2f} Q_value: {:.2f}'.format(i_episode, np.mean(scores_window),np.mean(Q_values_window)), end="")
+            print('\rEpisode {}\tAverage Score: {:.2f} \tQ_value: {:.2f}'.format(i_episode, np.mean(scores_window),np.mean(Q_values_window)), end="")
         else:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % max_t_interval == 0:
