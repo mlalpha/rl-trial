@@ -8,6 +8,8 @@ from collections import deque
 from memory import ReplayBuffer
 import datetime
 
+import cv2
+
 np.random.seed(714)
 tf.set_random_seed(714)  # reproducible
 
@@ -241,7 +243,7 @@ critic = Critic(sess, state_size=state_space,
                 lr=LR_C)  # we need a good teacher, so the teacher should learn faster than the actor
 
 timestampe = datetime.datetime.now().strftime("%Y_%m_%d_%H%M")
-writer = tf.summary.FileWriter("./logs/GreenHillZone_Act1/%s"%timestampe, sess.graph)
+writer = tf.summary.FileWriter("./logs/LabyrinthZone_Act1/%s"%timestampe, sess.graph)
 sess.run(tf.global_variables_initializer())
 
 saver = tf.train.Saver()
@@ -252,8 +254,10 @@ scores_window = deque(maxlen=max_t_interval)  # last 100 scores
 
 memory = ReplayBuffer(action_space, BUFFER_SIZE, BATCH_SIZE, 714)
 
-
-
+state = None
+def store_img(state , epoch, step):
+    name = '../state_img/state_epoch_%i_%i.png'%(epoch, step)
+    cv2.imwrite(name, state)
 
 # RENDER = False
 # eplison = 0.7
@@ -273,6 +277,7 @@ for i_episode in range(1, MAX_EPISODE + 1):
         # action = None
         # if np.random.uniform() > eplison:
         action = actor.choose_action(reshape_state(state))
+        store_img(state, i_episode, timestep)
         # else:
             # action = env.action_space.sample()
 
