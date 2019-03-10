@@ -1,5 +1,5 @@
 from keras.models import Model
-from keras.layers import Input, Dense, Conv2D, Flatten
+from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization
 from keras.activations import relu, softmax
 from keras import backend as K
 from keras.optimizers import Adam
@@ -17,9 +17,11 @@ class Actor():
         old_prediction = Input(shape=(action_size, ))
         
         x = Conv2D(filters=32, kernel_size=(8, 8), strides=4, activation=relu)(state)
-
+        x = BatchNormalization()(x)
         x = Conv2D(filters=64, kernel_size=(4, 4), strides=2, activation=relu)(x)
+        x = BatchNormalization()(x)
         x = Conv2D(filters=64, kernel_size=(3, 3), strides=1, activation=relu)(x)
+        x = BatchNormalization()(x)
         x = Flatten()(x)
         x = Dense(units=512, activation=relu,
                 kernel_initializer='random_uniform',
