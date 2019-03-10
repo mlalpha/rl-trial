@@ -45,7 +45,7 @@ class Agent():
         self.memory[3].append(reward)
 
     def act(self, state):
-        actions_prob = self.actor.predict(
+        actions_prob = self.actor.model.predict(
             [
                 state.reshape(1, self.state_size),
                 self.dummy_adv,
@@ -71,16 +71,16 @@ class Agent():
 
         while self.get_memory_size() != 0:
             state, action, old_actions_prob, reward = self.get_batch(batch_size)
-            advantage = reward - self.critic.predict(state)
-            actor_loss = self.actor.fit(
+            advantage = reward - self.critic.model.predict(state)
+            actor_loss = self.actor.model.fit(
                 [
                     state, advantage, old_actions_prob
                 ], [action], 
                 batch_size=batch_size, shuffle=True, epochs=i_epoch, verbose=False)
-            critic_loss = self.critic.fit([state], [reward], 
+            critic_loss = self.critic.model.fit([state], [reward], 
                 batch_size=batch_size, shuffle=True, epochs=i_epoch, verbose=False)
-            self.writer.add_scalar('Actor loss', actor_loss.history['loss'][-1], self.gradient_steps)
-            self.writer.add_scalar('Critic loss', critic_loss.history['loss'][-1], self.gradient_steps)
+            self.writer.add_scalar('Actor loss', actor_loss.history['loss'][-1], self.update_count)
+            self.writer.add_scalar('Critic loss', critic_loss.history['loss'][-1], self.update_count)
             
             self.update_count += 1
 
