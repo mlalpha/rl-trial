@@ -1,10 +1,8 @@
 from keras.models import Model
-from keras.layers import Input, Dense, Conv2D
-from keras.activations import relu
+from keras.layers import Input, Dense, Conv2D, Flatten
+from keras.activations import relu, softmax
 from keras import backend as K
 from keras.optimizers import Adam
-
-from util import add_cnn_body
 
 class Actor():
 
@@ -13,7 +11,8 @@ class Actor():
             'lr': 1e-6,
         }
 
-        state = Input(shape=state_size)
+        
+        state = Input(shape=(84,84,1, ))
         advantage = Input(shape=(1, ))
         old_prediction = Input(shape=(action_size, ))
         
@@ -21,10 +20,15 @@ class Actor():
 
         x = Conv2D(filters=64, kernel_size=(4, 4), strides=2, activation=relu)(x)
         x = Conv2D(filters=64, kernel_size=(3, 3), strides=1, activation=relu)(x)
-        x = Dense(units=512, activation=relu)(x)
-        q_values = Dense(units=action_size)(x)
+        x = Flatten()(x)
+        x = Dense(units=512, activation=relu,
+                kernel_initializer='random_uniform',
+                bias_initializer='zeros')(x)
+        actions_prob = Dense(units=action_size, activation=softmax,
+                kernel_initializer='random_uniform',
+                bias_initializer='zeros', name='output')(x)
 
-        model = Model(inputs=state, outputs=q_values)
+        model = Model(inputs=[state, advantage, old_prediction], outputs=actions_prob)
         model.compile(optimizer=Adam(lr=hyper_param['lr']),
               loss=[self.proximal_policy_optimization_loss(
                           advantage=advantage,

@@ -17,7 +17,7 @@ BATCH_SIZE = 64
 def ppo(n_episodes=10000, max_t=4500, max_t_interval = 100):
     scores = []
     scores_window = deque(maxlen=max_t_interval)
-
+    max_mean_score = 500
 
 
     for i_episode in range(1, n_episodes+1):
@@ -26,7 +26,7 @@ def ppo(n_episodes=10000, max_t=4500, max_t_interval = 100):
         for _ in range(max_t):
             action, actions_prob = agent.act(state)
             next_state, reward, done, _ = env.step(action)
-            agent.step(state, action, reward, next_state, done)
+            agent.step(state, action, reward, done)
             state = next_state
             score += reward
             if done:
@@ -49,3 +49,4 @@ def ppo(n_episodes=10000, max_t=4500, max_t_interval = 100):
 
     agent.learn(BATCH_SIZE)
 
+ppo()

@@ -47,11 +47,12 @@ class Agent():
     def act(self, state):
         actions_prob = self.actor.model.predict(
             [
-                state.reshape(1, self.state_size),
+                state.reshape(1, 84, 84, 1),
                 self.dummy_adv,
                 self.dummy_actions_prob
             ]
         )
+        # print(actions_prob[0])
         action = np.random.choice(self.action_size, p=np.nan_to_num(actions_prob[0]))
         
         return action, actions_prob[0]

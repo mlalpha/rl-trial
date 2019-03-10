@@ -1,5 +1,5 @@
 from keras.models import Model, Sequential
-from keras.layers import Input, Dense, Conv2D
+from keras.layers import Input, Dense, Conv2D, Flatten
 from keras.activations import relu
 from keras import backend as K
 from keras.optimizers import Adam
@@ -18,8 +18,13 @@ class Critic():
 
         x = Conv2D(filters=64, kernel_size=(4, 4), strides=2, activation=relu)(x)
         x = Conv2D(filters=64, kernel_size=(3, 3), strides=1, activation=relu)(x)
-        x = Dense(units=512, activation=relu)(x)
-        q_values = Dense(units=action_size)(x)
+        x = Flatten()(x)
+        x = Dense(units=512, activation=relu,
+                kernel_initializer='random_uniform',
+                bias_initializer='zeros')(x)
+        q_values = Dense(units=action_size,
+                kernel_initializer='random_uniform',
+                bias_initializer='zeros')(x)
 
         model = Model(inputs=state, outputs=q_values)
         model.compile(optimizer=Adam(lr=hyper_param['lr']),
