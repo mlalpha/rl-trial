@@ -1,4 +1,4 @@
-from keras.models import Model
+from keras.models import Model, load_model, save_model
 from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization
 from keras.activations import relu, softmax
 from keras import backend as K
@@ -20,7 +20,6 @@ class Actor():
         x = Conv2D(filters=32, kernel_size=(8, 8), strides=4, activation=relu)(state)
         x = BatchNormalization()(x)
         x = Conv2D(filters=64, kernel_size=(4, 4), strides=2, activation=relu)(x)
-        x = BatchNormalization()(x)
         x = Conv2D(filters=64, kernel_size=(3, 3), strides=1, activation=relu)(x)
         x = Flatten()(x)
         x = Dense(units=512, activation=relu,
@@ -49,4 +48,8 @@ class Actor():
             return -K.mean(K.minimum(r * advantage, K.clip(r, min_value=1 - LOSS_CLIPPING, max_value=1 + LOSS_CLIPPING) * advantage) + ENTROPY_LOSS * (prob * K.log(prob + 1e-10)))
         return loss
 
+    def save_model(self, name):
+        self.model.save(name)
 
+    def load_model(self, name):
+        self.model = load_model(name)

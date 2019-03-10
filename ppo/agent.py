@@ -2,19 +2,23 @@ import numpy as np
 from actor import Actor
 from critic import Critic
 from tensorboardX import SummaryWriter
+import datetime
 
 class Agent():
     
     def __init__(self, state_size, action_size, param={}):
+        self.seed = 714
+        np.random.seed(seed=self.seed)
         self.state_size = state_size
         self.action_size = action_size
         self.dummy_adv = np.zeros((1, 1))
         self.dummy_actions_prob = np.zeros((1, action_size))
         self.actor = Actor(state_size, action_size)
         self.critic = Critic(state_size, action_size)
-        self.name = 'ppo/'
-        weight_fn = 'ppo'
-        self.best_weight_fn = weight_fn+'.pth'
+        self.name = 'ppo/ppo'
+        timestampe = datetime.datetime.now().strftime("%Y_%m_%d_%H%M")
+        self.name += timestampe
+        self.best_weight_fn = 'ppo_best_%s.h5'
         self.writer = SummaryWriter('logs/')
         self.memory = [[], [], [], []]
         self.update_count = 0
@@ -95,5 +99,11 @@ class Agent():
             self.update_count += 1
 
 
-        
+    def save_model(self):
+        self.actor.save_model(self.best_weight_fn%'actor')
+        self.critic.save_model(self.best_weight_fn%'critic')    
+
+    def load_model(self):
+        self.actor.load_model(self.best_weight_fn%'actor')
+        self.critic.load_model(self.best_weight_fn%'critic')    
     

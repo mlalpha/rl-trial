@@ -1,4 +1,4 @@
-from keras.models import Model, Sequential
+from keras.models import Model, load_model, save_model
 from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization
 from keras.activations import relu
 from keras import backend as K
@@ -18,7 +18,6 @@ class Critic():
         x = Conv2D(filters=32, kernel_size=(8, 8), strides=4, activation=relu)(state)
         x = BatchNormalization()(x)
         x = Conv2D(filters=64, kernel_size=(4, 4), strides=2, activation=relu)(x)
-        x = BatchNormalization()(x)
         x = Conv2D(filters=64, kernel_size=(3, 3), strides=1, activation=relu)(x)
         x = Flatten()(x)
         x = Dense(units=512, activation=relu,
@@ -36,3 +35,8 @@ class Critic():
         model.summary()
         self.model = model
 
+    def save_model(self, name):
+        self.model.save(name)
+
+    def load_model(self, name):
+        self.model = load_model(name)
