@@ -30,3 +30,5 @@ if RNN expected possible fail, then `reward_t -= possibility_of_fail * FAIL_PUNI
 if actor did not fail, then `reward_t += possibility_of_fail * MAX_REWARD` or replace `MAX_REWARD` with `2 * mean_reward`?
 
 training data: FAIL_PUNISH as a quadratic function, root from bad end (reward = FAIL_PUNISH) trace backward to the previous state where action != no_action (reward = 0)
+
+May be this can be trained in DQN way?
