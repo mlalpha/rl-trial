@@ -1,6 +1,9 @@
 # VAE
 This is not finished
 
+## dataloader
+require opencv2
+
 ## model1
 A simple VAE in CNN + FC  
 Copied from https://github.com/aniket-agarwal1999/VAE-Pytorch/blob/master/Variational%20Autoencoders.ipynb
