@@ -25,8 +25,8 @@ reward_t = reward_(t-1) * 0.9 + abs(reward_(t-1) - reward_system)
 input = [sequence_of_states, reward_t]
 output = predict possibility of fail
 
-if RNN expected possible fail, then `reward_t -= possibility_of_fail + FAIL_PUNISH`
+if RNN expected possible fail, then `reward_t -= possibility_of_fail * FAIL_PUNISH`
 
 if actor did not fail, then `reward_t += possibility_of_fail * MAX_REWARD` or replace `MAX_REWARD` with `2 * mean_reward`?
 
-training data: FAIL_PUNISH linear from bad end backward to last action != no_action
+training data: FAIL_PUNISH as a quadratic function, root from bad end (reward = FAIL_PUNISH) trace backward to the previous state where action != no_action (reward = 0)
