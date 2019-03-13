@@ -19,7 +19,7 @@ class Agent():
         timestampe = datetime.datetime.now().strftime("%Y_%m_%d_%H%M")
         self.name += timestampe
         self.best_weight_fn = 'ppo_best_%s.h5'
-        self.writer = SummaryWriter('logs/')
+        self.writer = SummaryWriter('logs/'+timestampe)
         self.memory = [[], [], [], []]
         self.update_count = 0
         self.cur_ind = 0
