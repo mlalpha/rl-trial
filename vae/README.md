@@ -11,3 +11,6 @@ Copied from https://github.com/aniket-agarwal1999/VAE-Pytorch/blob/master/Variat
 ## model2
 A VAE use only CNN  
 Based on https://github.com/L1aoXingyu/pytorch-beginner/tree/master/08-AutoEncoder
+
+## input data
+81 x 81 x 1
