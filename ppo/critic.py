@@ -1,5 +1,5 @@
 from keras.models import Model, load_model, save_model
-from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization
+from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, AveragePooling2D
 from keras.activations import relu
 from keras import backend as K
 from keras.optimizers import Adam
@@ -16,10 +16,11 @@ class Critic():
         state = Input(shape=state_size)
         
         x = Conv2D(filters=32, kernel_size=(8, 8), strides=4, activation=relu)(state)
-        x = Conv2D(filters=64, kernel_size=(4, 4), strides=2, activation=relu)(x)
-        x = Conv2D(filters=64, kernel_size=(3, 3), strides=1, activation=relu)(x)
+        x = AveragePooling2D()(x)
+        x = Conv2D(filters=20, kernel_size=(4, 4), strides=1, activation=relu, padding='same')(x)
+        x = AveragePooling2D()(x)
         x = Flatten()(x)
-        x = Dense(units=128, activation=relu,
+        x = Dense(units=512, activation=relu,
                 kernel_initializer=initializers.RandomNormal(mean=.0, stddev=.03, seed=self.seed),
                 bias_initializer=initializers.Constant(0.1)
                 )(x)

@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 import numpy as np
 import tensorflow as tf
 # import gym
@@ -92,7 +92,7 @@ class Actor(object):
 
             fc1 = tf.layers.dense(
                 inputs=flattened_vector,
-                units=128,  # number of hidden units
+                units=64,  # number of hidden units
                 activation=tf.nn.sigmoid,
                 name='fc1'
             )
@@ -273,7 +273,7 @@ for i_episode in range(1, MAX_EPISODE + 1):
     while True:
         if RENDER: 
             env.render()
-
+        #state = state/255
         # action = None
         # if np.random.uniform() > eplison:
         action = actor.choose_action(reshape_state(state))

@@ -14,7 +14,8 @@ def make_env(stack=True, scale_rew=True):
     Create an environment with some standard wrappers.
     """
    #env = grc.RemoteEnv('tmp/sock')
-    env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
+   #LabyrinthZone.Act1
+    env = make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1')
     env = SonicDiscretizer(env)
     if scale_rew:
         env = RewardScaler(env)
