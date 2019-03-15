@@ -6,7 +6,7 @@ require opencv2
 
 ## model1
 A simple VAE in CNN + FC  
-Copied from https://github.com/aniket-agarwal1999/VAE-Pytorch/blob/master/Variational%20Autoencoders.ipynb
+Based on https://github.com/aniket-agarwal1999/VAE-Pytorch
 
 ## model2
 A VAE use only CNN  
