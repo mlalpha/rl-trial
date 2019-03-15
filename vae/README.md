@@ -5,12 +5,16 @@ This is not finished
 require opencv2
 
 ## model1
+require pytorch
+
 A simple VAE in CNN + FC  
 Based on https://github.com/aniket-agarwal1999/VAE-Pytorch
 
 ## model2
+require pytorch
+
 A VAE use only CNN  
 Based on https://github.com/L1aoXingyu/pytorch-beginner/tree/master/08-AutoEncoder
 
 ## input data
-81 x 81 x 1
+1 x 81 x 81 or RAW?
