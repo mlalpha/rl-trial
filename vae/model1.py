@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# refer to https://github.com/aniket-agarwal1999/VAE-Pytorch
-
 ########Definition of the architecture of our encoder and decoder model with all the assisting functions
 
 class VAE(nn.Module):
