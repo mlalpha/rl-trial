@@ -13,7 +13,7 @@ class Actor():
         }
         self.seed = 129
         
-        state = Input(shape=(84,84,1, ))
+        state = Input(shape=state_size)
         advantage = Input(shape=(1, ))
         old_prediction = Input(shape=(action_size, ))
 
