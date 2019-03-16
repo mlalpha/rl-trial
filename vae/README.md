@@ -2,7 +2,7 @@
 This is not finished
 
 ## dataloader
-require opencv2
+require opencv-python version 3.1 or above
 
 ## model1
 require pytorch
