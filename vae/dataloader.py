@@ -79,5 +79,3 @@ class buffer_dataloader(Dataset):
 			image = self.transform(image)
 
 		return image
-
-		
