@@ -57,7 +57,7 @@ class Agent():
     def act(self, state):
         actions_prob = self.actor.model.predict(
             [
-                state.reshape(1, 84, 84, 1),
+                [state],
                 self.dummy_adv,
                 self.dummy_actions_prob
             ]
