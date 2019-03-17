@@ -3,7 +3,7 @@
 
 def train_model(model="model1"):
 	if model == "model1":
-		pass
+		import model1
 		######Setting all the hyperparameters
 		##You can change them if you want
 
@@ -16,6 +16,7 @@ def train_model(model="model1"):
 		import torch.optim as optim
 		optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-		train(trainloader, iters, model, device, optimizer, print_every)
+		for lossShow in train(trainloader, iters, model, device, optimizer, print_every):
+			print(lossShow)
 	else:
 		pass
