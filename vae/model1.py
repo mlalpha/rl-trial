@@ -108,40 +108,6 @@ def train(trainloader, iters, model, device, optimizer, print_every):
 			optimizer.step()
 			
 		if(counter % print_every == 0):
-			model.eval()
-			n = 10  # figure with 20x20 digits
-			digit_size = 28
-			figure = np.zeros((digit_size * n, digit_size * n))
-
-			# Construct grid of latent variable values
-			grid_x = norm.ppf(np.linspace(0.05, 0.95, n))
-			grid_y = norm.ppf(np.linspace(0.05, 0.95, n))
-
-			counter = 0
-			# decode for each square in the grid
-			for i, yi in enumerate(grid_x):
-				for j, xi in enumerate(grid_y):
-					digit = out[counter].squeeze().cpu().detach().numpy()
-					figure[i * digit_size: (i + 1) * digit_size,
-						   j * digit_size: (j + 1) * digit_size] = digit
-					counter += 1
-
-			plt.figure(figsize=(10, 10))
-			plt.imshow(figure, cmap='bone')
-			plt.show()  
+			yield loss.numpy().sum()
 
 		counter += 1
-		
-######Setting all the hyperparameters
-##You can change them if you want
-
-iters = 26
-num_latent = 8
-print_every = 5    #print after every 5 iterations
-model = VAE(num_latent)
-
-device = ('cuda' if torch.cuda.is_available() else 'cpu')
-import torch.optim as optim
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
-
-train(trainloader, iters, model, device, optimizer, print_every)
