@@ -1,4 +1,5 @@
 # load images from mp4 with openCV2
+# refer to https://pytorch.org/tutorials/beginner/data_loading_tutorial.html
 from torch.utils.data import Dataset
 import os
 import cv2
@@ -41,7 +42,7 @@ class dataloader(Dataset):
 			if ret:
 				if self.transform:
 					frame = self.transform(frame)
-				return frame
+				return frame # we ignored label here # return image, label
 
 
 class buffer_dataloader(Dataset):
@@ -78,4 +79,4 @@ class buffer_dataloader(Dataset):
 		if self.transform:
 			image = self.transform(image)
 
-		return image
+		return image # we ignored label here # return image, label
