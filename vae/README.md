@@ -18,5 +18,11 @@ require pytorch
 A VAE use only CNN  
 Based on https://github.com/L1aoXingyu/pytorch-beginner/tree/master/08-AutoEncoder
 
+## model3
+require pytorch
+
+A VAE for review experience and encourage explore use RNN  
+Take reference on https://github.com/aniket-agarwal1999/VAE-Pytorch
+
 ## input data
 1 x 81 x 81 or RAW?
