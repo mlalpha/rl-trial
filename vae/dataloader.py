@@ -56,6 +56,8 @@ class buffer_dataloader(Dataset):
 			if file.endswith(filename_extension):
 				fileLst.append(os.path.join(folder_name, file))
 
+		if not os.path.exists(buffer_folder_name):
+			os.makedirs(buffer_folder_name)
 		self.fileLst = []
 		for filename in fileLst:
 			cap = cv2.VideoCapture(filename)
