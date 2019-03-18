@@ -1,5 +1,7 @@
-# load and train model and save model
-# load data to train model1 or model2
+# load and train model
+
+import torch
+import torch.nn as nn
 
 #######This is the custom loss function defined for VAE
 ### You can even refere to: https://github.com/pytorch/examples/pull/226 
