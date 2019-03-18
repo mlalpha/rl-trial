@@ -1,3 +1,5 @@
+# A VAE in RNN
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -74,3 +76,60 @@ class VAE(nn.Module):
 		z = self.get_hidden(mean, logvar)
 		out = self.dec_func(z)
 		return out, mean, logvar
+
+#######This is the custom loss function defined for VAE
+### You can even refere to: https://github.com/pytorch/examples/pull/226 
+
+def VAE_loss(out, target, mean, logvar):
+	category1 = nn.BCELoss()
+	bce_loss = category1(out, target)
+	
+	#We will scale the following losses with this factor
+	scaling_factor = out.shape[0]*out.shape[1]*out.shape[2]*out.shape[3]
+	
+	####Now we are gonna define the KL divergence loss
+	# 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
+	kl_loss = -0.5 * torch.sum(1 + logvar - mean**2 - torch.exp(logvar))
+	kl_loss /= scaling_factor
+	
+	return bce_loss + kl_loss
+
+######The function which we will call for training our model
+
+def train(trainloader, iters, model, device, optimizer, print_every):
+	counter = 0
+	for i in range(iters):
+		model.train()
+		model.to(device)
+		for images, _ in trainloader:
+			images = images.to(device)
+			optimizer.zero_grad()
+			out, mean, logvar = model(images)
+			loss = VAE_loss(out, images, mean, logvar)
+			loss.backward()
+			optimizer.step()
+			
+		if(counter % print_every == 0):
+			model.eval()
+			n = 10  # figure with 20x20 digits
+			digit_size = 28
+			figure = np.zeros((digit_size * n, digit_size * n))
+
+			# Construct grid of latent variable values
+			grid_x = norm.ppf(np.linspace(0.05, 0.95, n))
+			grid_y = norm.ppf(np.linspace(0.05, 0.95, n))
+
+			counter = 0
+			# decode for each square in the grid
+			for i, yi in enumerate(grid_x):
+				for j, xi in enumerate(grid_y):
+					digit = out[counter].squeeze().cpu().detach().numpy()
+					figure[i * digit_size: (i + 1) * digit_size,
+						   j * digit_size: (j + 1) * digit_size] = digit
+					counter += 1
+
+			plt.figure(figsize=(10, 10))
+			plt.imshow(figure, cmap='bone')
+			plt.show()  
+
+		counter += 1
