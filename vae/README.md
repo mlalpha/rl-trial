@@ -12,12 +12,6 @@ require pytorch
 A simple VAE in CNN + FC  
 Based on https://github.com/aniket-agarwal1999/VAE-Pytorch
 
-## model2
-require pytorch
-
-A VAE use only CNN  
-Based on https://github.com/L1aoXingyu/pytorch-beginner/tree/master/08-AutoEncoder
-
 ## model3
 require pytorch
 
