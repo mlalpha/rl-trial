@@ -6,17 +6,14 @@ import utilities
 MAX_REWARD = 100
 rewards = []
 
-
-def exploration_reward(state):
-	global rewards
-
 def reward_trans(old_reward, state):
 	global rewards
+	# store this state and get cloesest distance (smallest)
 	new_reward = utilities.store(state) * MAX_REWARD
 
 	pre_reward = rewards[-1]
 	rewards.append(old_reward)
-	old_reward = pre_reward * 0.9 + math.abs(pre_reward - old_reward)
+	old_reward = pre_reward * 0.9999 + math.abs(pre_reward - old_reward)
 
 	# merge new & old reward?
 	# GRU predict bad reward? (window size 30)
