@@ -6,6 +6,10 @@ import utilities
 MAX_REWARD = 100
 rewards = []
 
+
+def exploration_reward(state):
+	global rewards
+
 def reward_trans(old_reward, state):
 	global rewards
 	new_reward = utilities.store(state) * MAX_REWARD
