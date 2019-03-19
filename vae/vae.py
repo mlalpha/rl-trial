@@ -17,7 +17,7 @@ class vae_module(object):
 									dataset_format, img_transform)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
-								channels=)
+								channels)
 		
 	def train(iters=26, num_latent=8, print_every=5):
 		train.train_model(self.model,
@@ -28,9 +28,6 @@ class vae_module(object):
 		torch.save(self.model.state_dict(), path)
 
 	def load(path="vae.pkl"):
-		self.model = model1.VAE(num_latent,
-								state_size, filter_size,
-								channels=)
 		self.model.load_state_dict(torch.load(path))
 
 	def encode(data):
