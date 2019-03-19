@@ -22,6 +22,11 @@ Take reference on https://github.com/aniket-agarwal1999/VAE-Pytorch
 <!-- 1 x 81 x 81 or RAW? -->
 
 ## How to use VAE module?
+
+The default relative path the module will search for video is `videos/`  
+
+The video format is expected to be `*.mp4`  
+
 ```
 
 from vae import vae_module
@@ -42,9 +47,19 @@ def use_vae():
 
 	test_image = load_test_image()
 
+	# initialize the module and provide an image transform function
 	vae = vae_module(img_transform)
+	# or you can let it use raw image
+	vae = vae_module()
+
+	# to start training
 	vae.train(26, 10, 5)
-	vae.encode(test_image)
+
+	# encode a photo
+	output = vae.encode(test_image)
+
+	# save the model
+	vae.save("vae_model.pkl")
 
 ```
 
