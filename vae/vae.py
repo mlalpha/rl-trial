@@ -3,7 +3,6 @@
 
 from dataloader import dataloader
 import model1
-import train
 import torch
 
 class vae_module(object):
