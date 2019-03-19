@@ -13,7 +13,8 @@ def cosine_similarity(a, b):
 
 def state_store(s):
 	global storage
-	a = state_similarity(s)
+	# save state and get the smallest distance
+	a = state_similarity(s, 1)
 	storage.append(s)
 	return a
 
@@ -25,7 +26,7 @@ def state_similarity(s, n=5):
 		if x != s:
 			a.append(cosine_similarity(x, s))
 	a.sort()
-	return a[n:]
+	return a[:n]
 
 
 def init():
