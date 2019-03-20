@@ -18,7 +18,7 @@ class vae_module(object):
 								state_size, filter_size,
 								channels)
 		
-	def train(iters=26, num_latent=8, print_every=5):
+	def train(self, iters=26, num_latent=8, print_every=5):
 	    #print after every 5 iterations
 		# model = VAE(num_latent, state_size)
 
@@ -33,7 +33,7 @@ class vae_module(object):
 
 	######The function which we will call for training our model
 
-	def _train(iters, device, optimizer, print_every):
+	def _train(self, iters, device, optimizer, print_every):
 		counter = 0
 		for i in range(iters):
 			self.model.train()
@@ -51,7 +51,7 @@ class vae_module(object):
 
 			counter += 1
 
-	def VAE_loss(out, target, mean, logvar):
+	def VAE_loss(self, out, target, mean, logvar):
 		category1 = nn.BCELoss()
 		bce_loss = category1(out, target)
 		
@@ -65,11 +65,11 @@ class vae_module(object):
 		
 		return bce_loss + kl_loss
 
-	def save(path="vae.pkl"):
+	def save(self, path="vae.pkl"):
 		torch.save(self.model.state_dict(), path)
 
-	def load(path="vae.pkl"):
+	def load(self, path="vae.pkl"):
 		self.model.load_state_dict(torch.load(path))
 
-	def encode(data):
+	def encode(self, data):
 		self.model.enc_func(data)

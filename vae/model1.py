@@ -18,11 +18,11 @@ class VAE(nn.Module):
 									 nn.Conv2d(channels[2], channels[3], filter_size[2], padding=1))
 		
 		#These two layers are for getting logvar and mean
-		encoder_out_size = state_size / 4
+		encoder_out_size = state_size // 4
 		self.fc1_in_shape = [-1, channels[3], encoder_out_size, encoder_out_size]
 		self.fc1_in_size = channels[3] * filter_size[2] * encoder_out_size
-		fc2_in_size = self.fc1_in_size / 3
-		fc2_out_size = fc2_in_size / 2
+		fc2_in_size = self.fc1_in_size // 3
+		fc2_out_size = fc2_in_size // 2
 		self.fc1 = nn.Linear(self.fc1_in_size, fc2_in_size)
 		self.fc2 = nn.Linear(fc2_in_size, fc2_out_size)
 		self.mean = nn.Linear(fc2_out_size, num_latent)
