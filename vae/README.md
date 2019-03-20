@@ -18,8 +18,9 @@ require pytorch
 A VAE for review experience and encourage explore use RNN  
 Take reference on https://github.com/aniket-agarwal1999/VAE-Pytorch
 
-<!-- ## input data -->
-<!-- 1 x 81 x 81 or RAW? -->
+## input data
+1 x 80 x 80 or RAW?
+Need to be N\*4
 
 ## How to use VAE module?
 
