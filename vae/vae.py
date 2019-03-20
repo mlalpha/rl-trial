@@ -12,8 +12,10 @@ class vae_module(object):
 				filter_size=[3, 3, 3], channels=[1, 4, 20, 20]):
 		super(vae_module, self).__init__()
 		# init trainloader
-		self.trainloader = dataloader(dataset_folder,
+		trainset = dataloader(dataset_folder,
 									dataset_format, img_trans)
+		self.trainloader = torch.utils.data.DataLoader(trainset,
+									batch_size=100, shuffle=True)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
 								channels)
@@ -47,6 +49,7 @@ class vae_module(object):
 				optimizer.step()
 				
 			if(counter % print_every == 0):
+				model.eval()
 				print(loss.numpy().sum())
 
 			counter += 1
