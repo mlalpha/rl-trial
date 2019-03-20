@@ -2,6 +2,7 @@
 from vae import vae_module
 import cv2
 from dataloader import dataloader
+import numpy as np
 
 def use_vae():
 	IMAGE_SIZE = 36
@@ -18,7 +19,9 @@ def use_vae():
 
 	def img_transform(img):
 		gray_image = rgb2gray(img)
-		return resize(gray_image, size=(IMAGE_SIZE, IMAGE_SIZE))
+		small_image = resize(gray_image, size=(IMAGE_SIZE, IMAGE_SIZE))
+		matrix = small_image / 255.0
+		return np.expand_dims(matrix, axis=0).astype(np.double)
 
 	test_image = load_test_image()
 	test_image = img_transform(test_image)
