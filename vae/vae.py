@@ -38,7 +38,7 @@ class vae_module(object):
 		for i in range(iters):
 			self.model.train()
 			self.model.to(device)
-			for images, _ in self.trainloader:
+			for images in self.trainloader:
 				images = images.to(device)
 				optimizer.zero_grad()
 				out, mean, logvar = self.model(images)

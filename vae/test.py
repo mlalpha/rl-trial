@@ -4,7 +4,7 @@ import cv2
 from dataloader import dataloader
 
 def use_vae():
-	IMAGE_SIZE = 72
+	IMAGE_SIZE = 36
 
 	def resize(img, size):
 		return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
