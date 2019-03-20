@@ -21,9 +21,9 @@ class VAE(nn.Module):
 		encoder_out_size = state_size / 4
 		self.fc1_in_shape = [-1, channels[3], encoder_out_size, encoder_out_size]
 		self.fc1_in_size = channels[3] * filter_size[2] * encoder_out_size
-		fc2_in_size = fc1_in_size / 3
+		fc2_in_size = self.fc1_in_size / 3
 		fc2_out_size = fc2_in_size / 2
-		self.fc1 = nn.Linear(fc1_in_size, fc2_in_size)
+		self.fc1 = nn.Linear(self.fc1_in_size, fc2_in_size)
 		self.fc2 = nn.Linear(fc2_in_size, fc2_out_size)
 		self.mean = nn.Linear(fc2_out_size, num_latent)
 		self.var = nn.Linear(fc2_out_size, num_latent)
@@ -32,7 +32,7 @@ class VAE(nn.Module):
 		#This is the first layer for the decoder part
 		self.expand = nn.Linear(num_latent, fc2_out_size)
 		self.fc3 = nn.Linear(fc2_out_size, fc2_in_size)
-		self.fc4 = nn.Linear(fc2_in_size, fc1_in_size)
+		self.fc4 = nn.Linear(fc2_in_size, self.fc1_in_size)
 		self.decoder = nn.Sequential(nn.ConvTranspose2d(channels[3], channels[2], 3, padding=1),
 									 nn.BatchNorm2d(channels[2]),
 									 nn.ConvTranspose2d(channels[2], channels[1], 8),

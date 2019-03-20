@@ -21,7 +21,7 @@ class dataloader(Dataset):
 			cap = cv2.VideoCapture(filename)
 			if cap.isOpened():
 				self.len += int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-				for frameIdx in xrange(0, self.len):
+				for frameIdx in range(0, self.len):
 					self.filenframe_idx.append([fileIdx, frameIdx])
 			cap.release()
 			fileIdx += 1
@@ -36,7 +36,7 @@ class dataloader(Dataset):
 		filename = self.fileLst[fileIdx]
 		cap = cv2.VideoCapture(filename)
 		if cap.isOpened():
-			cap.set(CV_CAP_PROP_POS_FRAMES,frameIdx)
+			cap.set(cv2.CAP_PROP_POS_FRAMES,frameIdx)
 			ret, frame = cap.read()
 			cap.release()
 			if ret:
