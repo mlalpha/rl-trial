@@ -27,7 +27,7 @@ def _train(trainloader, iters, model, device, optimizer, print_every):
 	for i in range(iters):
 		model.train()
 		model.to(device)
-		for images, _ in trainloader:
+		for images in trainloader:
 			images = images.to(device)
 			optimizer.zero_grad()
 			out, mean, logvar = model(images)
