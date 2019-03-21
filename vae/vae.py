@@ -4,6 +4,7 @@
 from dataloader import dataloader
 import model1
 import torch
+import torch.nn as nn
 
 class vae_module(object):
 	"""docstring for vae_module"""
@@ -41,7 +42,7 @@ class vae_module(object):
 			self.model.train()
 			self.model.to(device)
 			for images in self.trainloader:
-				images = images.to(device)
+				images = images.float().to(device)
 				optimizer.zero_grad()
 				out, mean, logvar = self.model(images)
 				loss = self.VAE_loss(out, images, mean, logvar)
