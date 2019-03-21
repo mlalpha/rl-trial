@@ -50,7 +50,7 @@ class vae_module(object):
 				optimizer.step()
 				
 			if(counter % print_every == 0):
-				model.eval()
+				self.model.eval()
 				print(loss.numpy().sum())
 
 			counter += 1
