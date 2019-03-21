@@ -31,36 +31,51 @@ The video format is expected to be `*.mp4`
 ```
 
 from vae import vae_module
+import cv2
+import numpy as np
+import torch
 
 def use_vae():
-	def load_test_image():
-		pass
+	IMAGE_SIZE = 12
 
 	def resize(img, size):
-		pass # your code here
+		return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
-	def rgb2gray(rgb):
-		return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
+	def load_test_image(path='./test_img.png', size=(IMAGE_SIZE,IMAGE_SIZE)):
+		pic = cv2.imread(path)
+		pic = resize(pic, size)
+		pic = img_transform(pic)
+		return torch.from_numpy(pic)
+
+	def rgb2gray(img):
+		return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 	def img_transform(img):
-		gray_image = rgb2gray(image)
-		return resize(gray_image, size=(81, 81))
+		gray_image = rgb2gray(img)
+		small_image = resize(gray_image, size=(IMAGE_SIZE, IMAGE_SIZE))
+		matrix = small_image / 255.0
+		return np.expand_dims(matrix, axis=0)
 
 	test_image = load_test_image()
 
+	img_size = IMAGE_SIZE**2
+	num_latent = 5
+	
 	# initialize the module and provide an image transform function
-	vae = vae_module(img_transform)
+	vae = vae_module(num_latent, img_size, img_transform)
 	# or you can let it use raw image
-	vae = vae_module()
+	vae = vae_module(num_latent, img_size)
 
 	# to start training
-	vae.train(26, 10, 5)
+	vae.train(26, num_latent, 5)
 
 	# encode a photo
 	output = vae.encode(test_image)
 
 	# save the model
-	vae.save("vae_model.pkl")
+	vae.save()
+
+use_vae()
 
 ```
 
