@@ -20,7 +20,7 @@ Take reference on https://github.com/aniket-agarwal1999/VAE-Pytorch
 
 ## input data
 1 x 80 x 80 or RAW?
-Need to be N\*4
+Need to be N\*12
 
 ## How to use VAE module?
 
