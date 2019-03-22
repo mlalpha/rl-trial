@@ -9,7 +9,7 @@ from baselines.common.atari_wrappers import WarpFrame, FrameStack
 import gym_remote.client as grc
 from retro_contest.local import make
 
-def make_env(stack=True, scale_rew=True, level_name='GreenHillZone.Act2'):
+def make_env(level_name, stack=True, scale_rew=True, skip_neg_rew=True):
     """
     Create an environment with some standard wrappers.
     """
@@ -20,6 +20,8 @@ def make_env(stack=True, scale_rew=True, level_name='GreenHillZone.Act2'):
     env = SonicDiscretizer(env)
     if scale_rew:
         env = RewardScaler(env)
+    if skip_neg_rew:
+        env = RewardSkip(env)
     env = WarpFrame(env)
     if stack:
         env = FrameStack(env, 4)
@@ -55,6 +57,26 @@ class RewardScaler(gym.RewardWrapper):
     """
     def reward(self, reward):
         return reward * 0.01
+
+class RewardSkip(gym.RewardWrapper):
+    """
+    Bring rewards to a reasonable scale for PPO.
+
+    This is incredibly important and effects performance
+    drastically.
+    """
+    def __init__(self, env):
+        self.negative_reward = 0
+        return super().__init__(env)
+    def reward(self, reward):
+        if reward < 0:
+            self.negative_reward += reward
+            reward = 0
+        elif self.negative_reward > 0:
+            self.negative_reward += reward
+            reward = max(0, self.negative_reward)
+            self.negative_reward = min(0, self.negative_reward)
+        return reward 
 
 class AllowBacktracking(gym.Wrapper):
     """
