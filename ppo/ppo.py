@@ -7,7 +7,7 @@ from collections import deque
 import numpy as np
 
 
-env = make_env(stack=False, scale_rew=True)
+env = make_env(stack=False, scale_rew=True, skip_neg_rew=True)
 env.seed = 714
 
 state_space = list(env.observation_space.shape)
@@ -27,23 +27,19 @@ def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
     for i_episode in range(1, n_episodes+1):
         state = env.reset()
         score = 0
-        negative_reward = 0
         for _ in range(max_t):
             state = state/255.0
             action, action_took, actions_prob = agent.act(state)
             next_state, reward, done, _ = env.step(action)
-            if reward < 0:
-                negative_reward += reward
-                reward = 0
             agent.step(state, action_took, actions_prob, reward)
+            print(reward)
             state = next_state
             score += reward
 #            if agent.get_memory_size() >= BATCH_SIZE:
 #                agent.learn(BATCH_SIZE, i_episode)
             if done:
                 break
-
-        score = score + negative_reward
+        
         scores_window.append(score)       # save most recent score
         scores.append(score)              # save most recent score
 
