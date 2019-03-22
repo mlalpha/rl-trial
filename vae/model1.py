@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
 
 ########Definition of the architecture of our encoder and decoder model with all the assisting functions
 
@@ -18,9 +19,10 @@ class VAE(nn.Module):
 									 nn.Conv2d(channels[2], channels[3], filter_size[2], padding=1))
 		
 		#These two layers are for getting logvar and mean
-		encoder_out_size = state_size // 4
-		self.fc1_in_shape = [-1, channels[3], encoder_out_size, encoder_out_size]
-		self.fc1_in_size = channels[3] * filter_size[2] * encoder_out_size
+		encoder_out_size = state_size // 16
+		encoder_out_width = int(math.sqrt(encoder_out_size))
+		self.fc1_in_shape = [-1, channels[3], encoder_out_width, encoder_out_width]
+		self.fc1_in_size = channels[3] * encoder_out_size
 		fc2_in_size = self.fc1_in_size // 3
 		fc2_out_size = fc2_in_size // 2
 		self.fc1 = nn.Linear(self.fc1_in_size, fc2_in_size)
@@ -35,9 +37,9 @@ class VAE(nn.Module):
 		self.fc4 = nn.Linear(fc2_in_size, self.fc1_in_size)
 		self.decoder = nn.Sequential(nn.ConvTranspose2d(channels[3], channels[2], 3, padding=1),
 									 nn.BatchNorm2d(channels[2]),
-									 nn.ConvTranspose2d(channels[2], channels[1], 8),
+									 nn.ConvTranspose2d(channels[2], channels[1], 3),
 									 nn.BatchNorm2d(channels[1]),
-									 nn.ConvTranspose2d(channels[1], channels[0], 15))
+									 nn.ConvTranspose2d(channels[1], channels[0], 8))
 		
 	def enc_func(self, x):
 		#here we will be returning the logvar(log variance) and mean of our network
@@ -58,7 +60,7 @@ class VAE(nn.Module):
 		z = z.view(self.fc1_in_shape)
 		
 		out = self.decoder(z)
-		out = F.sigmoid(out)
+		out = torch.sigmoid(out)
 		return out
 	
 	def get_hidden(self, mean, logvar):
