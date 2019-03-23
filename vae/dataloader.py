@@ -69,7 +69,7 @@ class buffer_dataloader(Dataset):
 				if ret:
 					path = os.path.join(buffer_folder_name, str(filenum) + str(count) + ".pkl")
 					if not os.path.exists(path):
-						image = transform(frame, 2)
+						image = transform(frame)
 						with open(path, 'wb') as f:
 							pickle.dump(image, f)
 					self.fileLst.append(path)
@@ -81,7 +81,7 @@ class buffer_dataloader(Dataset):
 
 	def __getitem__(self, idx):
 		img_name = self.fileLst[idx]
-		with open(img_name. 'rb') as f:
+		with open(img_name, 'rb') as f:
 			image = pickle.load(f)
 
 		return image # we ignored label here # return image, label
