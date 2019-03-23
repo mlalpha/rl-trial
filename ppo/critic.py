@@ -15,17 +15,17 @@ class Critic():
 
         state = Input(shape=state_size)
         
-        x = Conv2D(filters=32, kernel_size=(8, 8), strides=4, activation=relu)(state)
+        x = Conv2D(filters=20, kernel_size=(2, 2), strides=1, activation=relu, padding='same')(state)
         x = AveragePooling2D()(x)
         x = Conv2D(filters=20, kernel_size=(4, 4), strides=1, activation=relu, padding='same')(x)
         x = AveragePooling2D()(x)
         x = Flatten()(x)
-        x = Dense(units=512, activation=relu,
-                kernel_initializer=initializers.RandomNormal(mean=.0, stddev=.03, seed=self.seed),
+        x = Dense(units=64, activation=relu,
+                kernel_initializer=initializers.RandomNormal(mean=0.0, stddev=.3, seed=self.seed),
                 bias_initializer=initializers.Constant(0.1)
                 )(x)
         q_values = Dense(units=1,
-                bias_initializer='ones')(x)
+                bias_initializer='ones', name='output')(x)
  
         model = Model(inputs=state, outputs=q_values)
         model.compile(optimizer=Adam(lr=hyper_param['lr']),

@@ -9,13 +9,16 @@ class Actor():
 
     def __init__(self, state_size, action_size, hyper_param={}, seed=714):
         hyper_param = {
-            'lr': 1e-7,
+            'lr': 1e-6,
         }
         self.seed = 129
+
+        self.state_size = state_size
+        self.action_size = action_size
         
-        state = Input(shape=state_size)
+        state = Input(shape=self.state_size)
         advantage = Input(shape=(1, ))
-        old_prediction = Input(shape=(action_size, ))
+        old_prediction = Input(shape=(self.action_size, ))
 
         x = Conv2D(filters=20, kernel_size=(2, 2), strides=1, activation=relu, padding='same')(state)
         x = AveragePooling2D()(x)
@@ -64,4 +67,12 @@ class Actor():
         self.model.save(name)
 
     def load_model(self, name):
-        self.model = load_model(name)
+        # state = Input(shape=self.state_size)
+        advantage = Input(shape=(1, ))
+        old_prediction = Input(shape=(self.action_size, ))
+        model = load_model(name, 
+                        custom_objects={'loss': 
+                            self.proximal_policy_optimization_loss(
+                            advantage=advantage,
+                            old_prediction=old_prediction)})
+        self.model = model

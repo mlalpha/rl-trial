@@ -6,7 +6,7 @@ import datetime
 
 class Agent():
     
-    def __init__(self, state_size, action_size, param={}):
+    def __init__(self, state_size, action_size, param={}, level_name='general'):
         self.seed = 714
         np.random.seed(seed=self.seed)
         self.state_size = state_size
@@ -15,11 +15,10 @@ class Agent():
         self.dummy_actions_prob = np.zeros((1, action_size))
         self.actor = Actor(state_size, action_size)
         self.critic = Critic(state_size, action_size)
-        self.name = 'ppo/ppo'
+        self.level_name = level_name
         timestampe = datetime.datetime.now().strftime("%Y_%m_%d_%H%M")
-        self.name += timestampe
+        self.writer = SummaryWriter('logs/%s/%s'%(self.level_name, timestampe))
         self.best_weight_fn = 'ppo_best_%s.h5'
-        self.writer = SummaryWriter('logs/'+timestampe)
         self.memory = [[], [], [], []]
         self.update_count = 0
         self.cur_ind = 0
@@ -54,14 +53,20 @@ class Agent():
         self.memory[2].append(actions_prob)
         self.memory[3].append(reward)
 
-    def act(self, state):
-        actions_prob = self.actor.model.predict(
-            [
-                [state],
-                self.dummy_adv,
-                self.dummy_actions_prob
-            ]
-        )
+    def act(self, state, test=False):
+        actions_prob = None
+        if test is True:
+            actions_prob = self.actor.model.predict(
+                np.array([state])
+            )
+        else:
+            actions_prob = self.actor.model.predict(
+                [
+                    np.array([state]),
+                    self.dummy_adv,
+                    self.dummy_actions_prob
+                ]
+            )
         action = np.random.choice(self.action_size, p=np.nan_to_num(actions_prob[0]))
         action_took = np.zeros(self.action_size)
         action_took[action] = 1
@@ -69,10 +74,23 @@ class Agent():
 
     def compute_decay_reward(self):
         memory_size = self.get_memory_size()
+
+        self.memory[0] = self.memory[0]
+        self.memory[1] = np.array(self.memory[1])
+        self.memory[2] = np.array(self.memory[2])
+        self.memory[3] = np.array(self.memory[3])
+
         for t in range(memory_size - 2, -1, -1):
             # timestep t
             # reward = r(t) + \sum_{t'} 
             self.memory[3][t] = self.memory[3][t] + self.memory[3][t+1] * self.GAMMA
+        '''
+        shuffle_index = np.random.permutation(memory_size)
+        self.memory[0] = self.memory[0][shuffle_index]
+        self.memory[1] = self.memory[1][shuffle_index]
+        self.memory[2] = self.memory[2][shuffle_index]
+        self.memory[3] = self.memory[3][shuffle_index]
+        '''
 
     def learn(self, batch_size, i_epoch):
         """
@@ -89,7 +107,8 @@ class Agent():
             actor_loss = self.actor.model.fit(
                 [
                     state, advantage, old_actions_prob
-                ], [action_took], 
+                ],
+                [action_took],
                 batch_size=batch_size, shuffle=True, epochs=i_epoch, verbose=False)
             critic_loss = self.critic.model.fit([state], [reward], 
                 batch_size=batch_size, shuffle=True, epochs=i_epoch, verbose=False)
@@ -103,7 +122,7 @@ class Agent():
         self.actor.save_model(self.best_weight_fn%'actor')
         self.critic.save_model(self.best_weight_fn%'critic')    
 
-    def load_model(self):
-        self.actor.load_model(self.best_weight_fn%'actor')
-        self.critic.load_model(self.best_weight_fn%'critic')    
+    def load_model(self, actor_model_fn, critic_model_fn):
+        self.actor.load_model(actor_model_fn)
+        self.critic.load_model(critic_model_fn)    
     
