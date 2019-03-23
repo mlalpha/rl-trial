@@ -21,19 +21,18 @@ def use_vae():
 		gray_image = rgb2gray(img)
 		small_image = resize(gray_image, size=(IMAGE_SIZE, IMAGE_SIZE))
 		matrix = small_image / 255.0
-		# return np.expand_dims(matrix, axis=0).astype(np.double)
-		return np.expand_dims(matrix, axis=0)
+		return matrix.reshape(matrix.shape[0], matrix.shape[1], 1)
 
-	test_image = load_test_image()
-	test_image = img_transform(test_image)
-	test_image = torch.from_numpy(test_image)
+	# test_image = load_test_image()
+	# test_image = img_transform(test_image)
+	# test_image = torch.from_numpy(test_image)
 
 	img_size = IMAGE_SIZE**2
 	num_latent = 5
 
 	vae = vae_module(num_latent, img_size, img_transform)
 	vae.train(26, num_latent, 5)
-	print(vae.encode(test_image))
+	# print(vae.encode(test_image))
 
 	vae.save()
 
