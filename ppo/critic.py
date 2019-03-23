@@ -20,7 +20,7 @@ class Critic():
         x = Conv2D(filters=20, kernel_size=(4, 4), strides=1, activation=relu, padding='same')(x)
         x = AveragePooling2D()(x)
         x = Flatten()(x)
-        x = Dense(units=64, activation=relu,
+        x = Dense(units=128, activation=relu,
                 kernel_initializer=initializers.RandomNormal(mean=0.0, stddev=.3, seed=self.seed),
                 bias_initializer=initializers.Constant(0.1)
                 )(x)

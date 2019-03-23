@@ -6,7 +6,7 @@ from agent import Agent
 from collections import deque
 import numpy as np
 
-level_name='LabyrinthZone.Act1'
+level_name='GreenHillZone.Act1'
 env = make_env(level_name=level_name, \
                 stack=False, scale_rew=True)
 env.seed = 714
@@ -18,9 +18,9 @@ print('Number of actions: ', action_space)
 
 agent = Agent(state_space, action_space, level_name=level_name)
 
-BATCH_SIZE = 2000
+BATCH_SIZE = 3000
 
-def ppo(agent, n_episodes=10000, max_t=3500, max_t_interval = 100):
+def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
     scores = []
     scores_window = deque(maxlen=max_t_interval)
     target_max_mean_score = 20
@@ -37,15 +37,17 @@ def ppo(agent, n_episodes=10000, max_t=3500, max_t_interval = 100):
             if reward < 0:
                 negative_reward += reward
                 reward = 0
-            elif negative_reward < 0:
-                negative_reward += reward
-                reward = max(0, negative_reward)
-                negative_reward = min(0, negative_reward)
+            # elif negative_reward < 0:
+            #     negative_reward += reward
+            #     reward = max(0, negative_reward)
+            #     negative_reward = min(0, negative_reward)
             agent.step(state, action_took, actions_prob, reward)
             state = next_state
             score += reward
 #            if agent.get_memory_size() >= BATCH_SIZE:
 #                agent.learn(BATCH_SIZE, i_episode)
+            if done:
+                break
         score += negative_reward
         scores_window.append(score)       # save most recent score
         scores.append(score)              # save most recent score
@@ -58,7 +60,7 @@ def ppo(agent, n_episodes=10000, max_t=3500, max_t_interval = 100):
         if i_episode % max_t_interval == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
             # torch.save(agent.qnetwork_local.state_dict(), latest_fn%(weight_fn, i_episode))
-        if i_episode > 30 and np.mean(scores_window) >= target_max_mean_score:
+        if i_episode > 50 and np.mean(scores_window) >= target_max_mean_score:
             max_mean_score = np.mean(scores_window)
             print('\nEnvironment enhanced in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode, max_mean_score))
             agent.save_model()
