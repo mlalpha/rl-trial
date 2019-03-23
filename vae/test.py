@@ -19,9 +19,9 @@ def use_vae():
 
 	def img_transform(img):
 		gray_image = rgb2gray(img)
-		small_image = resize(gray_image, size=(IMAGE_SIZE, IMAGE_SIZE))
-		matrix = small_image / 255.0
-		return matrix.reshape(matrix.shape[0], matrix.shape[1], 1)
+		matrix = resize(gray_image, size=(IMAGE_SIZE, IMAGE_SIZE))
+		matrix = matrix / 255.0
+		return matrix.reshape(1, matrix.shape[0], matrix.shape[1]).astype(np.float32)
 
 	# test_image = load_test_image()
 	# test_image = img_transform(test_image)
