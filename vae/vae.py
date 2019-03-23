@@ -19,7 +19,7 @@ class vae_module(object):
 									batch_size=100, shuffle=True)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
-								channels, [3,3,8])
+								channels)
 
 	def train(self, iters=26, num_latent=8, print_every=5, print_func=None):
 	    #print after every 5 iterations
@@ -77,3 +77,6 @@ class vae_module(object):
 
 	def encode(self, data):
 		self.model.enc_func(data)
+
+	def decode(self, data):
+		self.model.dec_func(data)
