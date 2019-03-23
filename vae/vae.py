@@ -16,18 +16,10 @@ class vae_module(object):
 		trainset = dataloader(dataset_folder,
 									dataset_format, img_trans)
 		self.trainloader = torch.utils.data.DataLoader(trainset,
-									batch_size=100, shuffle=True)
+									batch_size=100, shuffle=False)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
 								channels)
-	
-		######## Just checking out what the dataset looks like
-
-		dataiter = iter(self.trainloader)
-		images = dataiter.next()
-
-		print(images.shape)
-		print(images)
 
 	def train(self, iters=26, num_latent=8, print_every=5):
 	    #print after every 5 iterations
@@ -50,7 +42,7 @@ class vae_module(object):
 			self.model.train()
 			self.model.to(device)
 			for images in self.trainloader:
-				images = images.float().to(device)
+				images = images.to(device)
 				optimizer.zero_grad()
 				out, mean, logvar = self.model(images)
 				loss = self.VAE_loss(out, images, mean, logvar)
