@@ -17,8 +17,11 @@ def reward_trans(old_reward, state):
 	rewards.append(old_reward)
 	old_reward = pre_reward * 0.9999 + math.abs(pre_reward - old_reward)
 
-	# merge new & old reward?
+	# merge new & old reward
+	new_reward *= old_reward
 	# GRU predict bad reward? (window size 30)
+
+	return new_reward
 
 
 def reward_init():
