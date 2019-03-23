@@ -16,10 +16,10 @@ class vae_module(object):
 		trainset = dataloader(dataset_folder,
 									dataset_format, img_trans)
 		self.trainloader = torch.utils.data.DataLoader(trainset,
-									batch_size=100, shuffle=False)
+									batch_size=100, shuffle=True)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
-								channels)
+								channels, [3,3,8])
 
 	def train(self, iters=26, num_latent=8, print_every=5):
 	    #print after every 5 iterations
