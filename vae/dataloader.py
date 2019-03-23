@@ -16,9 +16,10 @@ class dataloader(Dataset):
 
 		self.filenframe_idx = []
 		self.len = 0
+		fileIdx = 0
 		for filename in self.fileLst:
 			cap = cv2.VideoCapture(filename)
-			fileIdx = 0
+			frameIdx = 0
 			while cap.isOpened():
 				ret, frame = cap.read()
 				if frame is None:
