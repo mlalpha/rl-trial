@@ -4,6 +4,7 @@
 from dataloader import dataloader
 import model1
 import torch
+import torch.nn as nn
 
 class vae_module(object):
 	"""docstring for vae_module"""
@@ -12,8 +13,10 @@ class vae_module(object):
 				filter_size=[3, 3, 3], channels=[1, 4, 20, 20]):
 		super(vae_module, self).__init__()
 		# init trainloader
-		self.trainloader = dataloader(dataset_folder,
+		trainset = dataloader(dataset_folder,
 									dataset_format, img_trans)
+		self.trainloader = torch.utils.data.DataLoader(trainset,
+									batch_size=100, shuffle=True)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
 								channels)
@@ -38,8 +41,8 @@ class vae_module(object):
 		for i in range(iters):
 			self.model.train()
 			self.model.to(device)
-			for images, _ in self.trainloader:
-				images = images.to(device)
+			for images in self.trainloader:
+				images = images.float().to(device)
 				optimizer.zero_grad()
 				out, mean, logvar = self.model(images)
 				loss = self.VAE_loss(out, images, mean, logvar)
@@ -47,6 +50,7 @@ class vae_module(object):
 				optimizer.step()
 				
 			if(counter % print_every == 0):
+				self.model.eval()
 				print(loss.numpy().sum())
 
 			counter += 1

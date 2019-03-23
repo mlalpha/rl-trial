@@ -27,7 +27,7 @@ def _train(trainloader, iters, model, device, optimizer, print_every):
 	for i in range(iters):
 		model.train()
 		model.to(device)
-		for images, _ in trainloader:
+		for images in trainloader:
 			images = images.to(device)
 			optimizer.zero_grad()
 			out, mean, logvar = model(images)
@@ -40,16 +40,23 @@ def _train(trainloader, iters, model, device, optimizer, print_every):
 
 		counter += 1
 
+import matplotlib.pyplot as plt
+lossLst = []
 ######Setting all the hyperparameters
 def train_model(model, trainloader,
 				iters=26, num_latent=8,
 				print_every=5):
     #print after every 5 iterations
 	# model = VAE(num_latent, state_size)
+	global lossLst
 
 	device = ('cuda' if torch.cuda.is_available() else 'cpu')
 	import torch.optim as optim
 	optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 	for lossShow in _train(trainloader, iters, model, device, optimizer, print_every):
-		print(lossShow)
+		lossLst.append(lossShow)
+		plt.plot(lossLst, 'b-')
+		plt.ylabel('loss')
+	plt.show()
+

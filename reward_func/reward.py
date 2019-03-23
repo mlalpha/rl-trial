@@ -2,21 +2,26 @@ import math
 import torch
 import torch.nn
 import utilities
+import numpy as np
 
 MAX_REWARD = 100
 rewards = []
 
 def reward_trans(old_reward, state):
 	global rewards
-	# store this state and get cloesest distance (smallest)
-	new_reward = utilities.store(state) * MAX_REWARD
+	# store this state and get some cloesest distance (smallest)
+	k = 4000
+	new_reward = np.asarray(utilities.store(state, k)).mean() * MAX_REWARD
 
 	pre_reward = rewards[-1]
 	rewards.append(old_reward)
 	old_reward = pre_reward * 0.9999 + math.abs(pre_reward - old_reward)
 
-	# merge new & old reward?
+	# merge new & old reward
+	new_reward *= old_reward
 	# GRU predict bad reward? (window size 30)
+
+	return new_reward
 
 
 def reward_init():
