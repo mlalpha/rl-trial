@@ -6,7 +6,7 @@ import math
 ########Definition of the architecture of our encoder and decoder model with all the assisting functions
 
 class VAE(nn.Module):
-	def __init__(self, num_latent, state_size, filter_size=[3, 3, 3], channels=[1, 4, 20, 20]):
+	def __init__(self, num_latent, state_size, filter_size=[3, 3, 3], channels=[1, 4, 20, 20], dconv_filter_size=[3, 8, 15]):
 		super().__init__()
 		
 		#So here we will first define layers for encoder network
@@ -35,11 +35,11 @@ class VAE(nn.Module):
 		self.expand = nn.Linear(num_latent, fc2_out_size)
 		self.fc3 = nn.Linear(fc2_out_size, fc2_in_size)
 		self.fc4 = nn.Linear(fc2_in_size, self.fc1_in_size)
-		self.decoder = nn.Sequential(nn.ConvTranspose2d(channels[3], channels[2], 3, padding=1),
+		self.decoder = nn.Sequential(nn.ConvTranspose2d(channels[3], channels[2], dconv_filter_size[0], padding=1),
 									 nn.BatchNorm2d(channels[2]),
-									 nn.ConvTranspose2d(channels[2], channels[1], 3),
+									 nn.ConvTranspose2d(channels[2], channels[1], dconv_filter_size[1]),
 									 nn.BatchNorm2d(channels[1]),
-									 nn.ConvTranspose2d(channels[1], channels[0], 8))
+									 nn.ConvTranspose2d(channels[1], channels[0], dconv_filter_size[2]))
 		
 	def enc_func(self, x):
 		#here we will be returning the logvar(log variance) and mean of our network
