@@ -3,6 +3,7 @@
 from torch.utils.data import Dataset
 import os
 import cv2
+import pickle
 
 class dataloader(Dataset):
 	"""docstring for dataloader"""
@@ -47,10 +48,9 @@ class dataloader(Dataset):
 
 class buffer_dataloader(Dataset):
 	"""docstring for buffer_dataloader"""
-	def __init__(self, folder_name="videos", filename_extension=".mp4",
-				buffer_folder_name="buffer", transform=None):
+	def __init__(self, folder_name="videos", filename_extension=".mp4", transform=None,
+				buffer_folder_name="buffer"):
 		super(buffer_dataloader, self).__init__()
-		self.transform = transform
 		fileLst = []
 		for file in os.listdir(folder_name):
 			if file.endswith(filename_extension):
@@ -59,14 +59,19 @@ class buffer_dataloader(Dataset):
 		if not os.path.exists(buffer_folder_name):
 			os.makedirs(buffer_folder_name)
 		self.fileLst = []
+		filenum = 0
 		for filename in fileLst:
+			filenum += 1
 			cap = cv2.VideoCapture(filename)
 			count = 0
 			while cap.isOpened():
 				ret, frame = cap.read()
 				if ret:
-					path = os.path.join(buffer_folder_name, filename + count + ".png")
-					cv2.imwrite(path, frame)
+					path = os.path.join(buffer_folder_name, str(filenum) + str(count) + ".pkl")
+					if not os.path.exists(path):
+						image = transform(frame, 2)
+						with open(path, 'wb') as f:
+							pickle.dump(image, f)
 					self.fileLst.append(path)
 					count += 1
 			cap.release()
@@ -76,9 +81,7 @@ class buffer_dataloader(Dataset):
 
 	def __getitem__(self, idx):
 		img_name = self.fileLst[idx]
-		image = cv2.imread(img_name)
-
-		if self.transform:
-			image = self.transform(image)
+		with open(img_name. 'rb') as f:
+			image = pickle.load(f)
 
 		return image # we ignored label here # return image, label
