@@ -29,7 +29,7 @@ def ppo(agent, n_episodes=10000, max_t=3500, max_t_interval = 100):
         state = env.reset()
         score = 0
         negative_reward = 0
-        for step in range(max_t):
+        for _ in range(max_t):
             state = state/255.0
             action, action_took, actions_prob = agent.act(state)
             next_state, reward, done, _ = env.step(action)
@@ -41,6 +41,7 @@ def ppo(agent, n_episodes=10000, max_t=3500, max_t_interval = 100):
                 negative_reward += reward
                 reward = max(0, negative_reward)
                 negative_reward = min(0, negative_reward)
+            agent.step(state, action_took, actions_prob, reward)
             state = next_state
             score += reward
 #            if agent.get_memory_size() >= BATCH_SIZE:
