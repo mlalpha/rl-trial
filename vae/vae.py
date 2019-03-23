@@ -20,7 +20,15 @@ class vae_module(object):
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
 								channels)
-		
+	
+		######## Just checking out what the dataset looks like
+
+		dataiter = iter(self.trainloader)
+		images, labels = dataiter.next()
+
+		print(images.shape)
+		print(images)
+
 	def train(self, iters=26, num_latent=8, print_every=5):
 	    #print after every 5 iterations
 		# model = VAE(num_latent, state_size)
