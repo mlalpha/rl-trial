@@ -10,7 +10,8 @@ class vae_module(object):
 	"""docstring for vae_module"""
 	def __init__(self, num_latent, state_size, img_trans=None,
 				dataset_folder="videos", dataset_format="mp4",
-				filter_size=[3, 3, 3], channels=[1, 4, 20, 20]):
+				filter_size=[3, 3, 3], channels=[1, 4, 20, 20],
+				dconv_kernel_sizes=[3, 8, 15]):
 		super(vae_module, self).__init__()
 		# init trainloader
 		trainset = dataloader(dataset_folder,
@@ -19,11 +20,10 @@ class vae_module(object):
 									batch_size=100, shuffle=True)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
-								channels)
+								channels, dconv_kernel_sizes)
 
-	def train(self, iters=26, num_latent=8, print_every=5, print_func=None):
+	def train(self, iters=26, print_every=5, print_func=None):
 	    #print after every 5 iterations
-		# model = VAE(num_latent, state_size)
 
 		device = ('cuda' if torch.cuda.is_available() else 'cpu')
 		import torch.optim as optim

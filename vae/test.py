@@ -35,16 +35,17 @@ def use_vae():
 		plt.title('loss')
 		plt.show('VAE Loss')
 
-	test_image = load_test_image()
+	test_image = load_test_image(size=(IMAGE_SIZE, IMAGE_SIZE))
 	if test_image is not None:
 		test_image = img_transform(test_image)
 		test_image = torch.from_numpy(test_image)
 
 	img_size = IMAGE_SIZE**2
 	num_latent = 1024
+	dconv_kernel_sizes = [7, 21, 40]
 
-	vae = vae_module(num_latent, img_size, img_transform)
-	vae.train(26, num_latent, 5, draw_function)
+	vae = vae_module(num_latent, img_size, img_transform, dconv_kernel_sizes=dconv_kernel_sizes)
+	vae.train(26, 5, draw_function)
 	if test_image is not None:
 		l = vae.encode(test_image)
 		print(l)
