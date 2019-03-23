@@ -24,7 +24,7 @@ class vae_module(object):
 		######## Just checking out what the dataset looks like
 
 		dataiter = iter(self.trainloader)
-		images, labels = dataiter.next()
+		images = dataiter.next()
 
 		print(images.shape)
 		print(images)
