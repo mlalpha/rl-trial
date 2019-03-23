@@ -18,6 +18,10 @@ require pytorch
 A VAE for review experience and encourage explore use RNN  
 Take reference on https://github.com/aniket-agarwal1999/VAE-Pytorch
 
+## test.py
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
 ## input data
 1 x 80 x 80 or RAW?
 Need to be N\*12
