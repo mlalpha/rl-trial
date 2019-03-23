@@ -9,7 +9,7 @@ def use_vae():
 	def resize(img, size):
 		return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
-	def load_test_image(path='./test_img.png', size=(IMAGE_SIZE,IMAGE_SIZE)):
+	def load_test_image(path='./test_img.png', size=(81,81)):
 		pic = cv2.imread(path)
 		return resize(pic, size)
 
