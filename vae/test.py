@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 def use_vae():
-	IMAGE_SIZE = 12
+	IMAGE_SIZE = 84
 	x = []
 
 	def resize(img, size):
@@ -38,7 +38,7 @@ def use_vae():
 	# test_image = torch.from_numpy(test_image)
 
 	img_size = IMAGE_SIZE**2
-	num_latent = 5
+	num_latent = 1024
 
 	vae = vae_module(num_latent, img_size, img_transform)
 	vae.train(26, num_latent, 5, draw_function)
