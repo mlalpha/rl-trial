@@ -15,6 +15,8 @@ def use_vae():
 
 	def load_test_image(path='./test_img.png', size=(36, 36)):
 		pic = cv2.imread(path)
+		if pic is None:
+			return None
 		return resize(pic, size)
 
 	def rgb2gray(img):
@@ -33,16 +35,20 @@ def use_vae():
 		plt.title('loss')
 		plt.show('VAE Loss')
 
-	# test_image = load_test_image()
-	# test_image = img_transform(test_image)
-	# test_image = torch.from_numpy(test_image)
+	test_image = load_test_image()
+	if test_image is not None:
+		test_image = img_transform(test_image)
+		test_image = torch.from_numpy(test_image)
 
 	img_size = IMAGE_SIZE**2
 	num_latent = 1024
 
 	vae = vae_module(num_latent, img_size, img_transform)
 	vae.train(26, num_latent, 5, draw_function)
-	# print(vae.encode(test_image))
+	if test_image is not None:
+		l = vae.encode(test_image)
+		print(l)
+		print(vae.decode(l))
 
 	vae.save()
 
