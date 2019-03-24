@@ -18,7 +18,7 @@ print('Number of actions: ', action_space)
 
 BATCH_SIZE = 3000
 EXPERIENCE_REPLAY = False
-BUFFER_SIZE = int(1e5)
+BUFFER_SIZE = int(9100)
 
 agent = Agent(state_space, action_space, level_name=level_name, \
     param={
@@ -31,7 +31,7 @@ agent = Agent(state_space, action_space, level_name=level_name, \
 def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
     scores = []
     scores_window = deque(maxlen=max_t_interval)
-    target_max_mean_score = 20
+    target_max_mean_score = 25
 
     for i_episode in range(1, n_episodes+1):
         state = env.reset()
@@ -45,10 +45,10 @@ def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
             if reward < 0:
                 negative_reward += reward
                 reward = 0
-            # elif negative_reward < 0:
-            #     negative_reward += reward
-            #     reward = max(0, negative_reward)
-            #     negative_reward = min(0, negative_reward)
+            elif negative_reward < 0:
+                negative_reward += reward
+                reward = max(0, negative_reward)
+                negative_reward = min(0, negative_reward)
             agent.step(state, action_took, actions_prob, reward)
             state = next_state
             score += reward
@@ -62,7 +62,7 @@ def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
 
         agent.writer.add_scalar('Episode Reward', score, i_episode)
 
-        if score > 50:
+        if score > 60:
             print('\nThis Episode {}\tScore: {:.2f}'.format(i_episode, score), end="\n")
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % max_t_interval == 0:
