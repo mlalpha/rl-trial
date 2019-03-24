@@ -13,12 +13,6 @@ def use_vae():
 	def resize(img, size):
 		return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
-	def load_test_image(path='./test_img.png', size=(36, 36)):
-		pic = cv2.imread(path)
-		if pic is None:
-			return None
-		return resize(pic, size)
-
 	def rgb2gray(img):
 		return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -47,10 +41,6 @@ def use_vae():
 
 	vae = vae_module(num_latent, img_size, img_transform, dconv_kernel_sizes=dconv_kernel_sizes)
 	vae.train(26, 5, draw_function)
-	if test_image is not None:
-		l = vae.encode(test_image)
-		print(l)
-		print(vae.decode(l))
 
 	vae.save()
 
