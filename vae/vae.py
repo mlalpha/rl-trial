@@ -11,12 +11,13 @@ class vae_module(object):
 	def __init__(self, num_latent, state_size, img_trans=None,
 				dataset_folder="videos", dataset_format="mp4",
 				filter_size=[3, 3, 3], channels=[1, 4, 20, 20],
-				dconv_kernel_sizes=[3, 8, 15]):
+				dconv_kernel_sizes=[3, 8, 15], train=True):
 		super(vae_module, self).__init__()
 		# init trainloader
-		trainset = dataloader(dataset_folder,
-									dataset_format, img_trans)
-		self.trainloader = torch.utils.data.DataLoader(trainset,
+		if train:
+			trainset = dataloader(dataset_folder,
+										dataset_format, img_trans)
+			self.trainloader = torch.utils.data.DataLoader(trainset,
 									batch_size=100, shuffle=True)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
@@ -49,9 +50,9 @@ class vae_module(object):
 			if(counter % print_every == 0):
 				self.model.eval()
 				if print_f:
-					print_f(loss.data.sum().numpy())
+					print_f(loss.data.cpu().sum().numpy())
 				else:
-					print("loss.sum(): ", loss.data.sum().numpy())
+					print("loss.sum(): ", loss.data.cpu().sum().numpy())
 
 			counter += 1
 
