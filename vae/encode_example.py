@@ -38,7 +38,7 @@ def use_vae():
 
 	vae = vae_module(num_latent, img_size, img_transform, dconv_kernel_sizes=dconv_kernel_sizes, train=False)
 	vae.load()
-	test_image.reshape(1, test_image.shape[0], test_image.shape[1], test_image.shape[2])
+	test_image = test_image.reshape(1, test_image.shape[0], test_image.shape[1], test_image.shape[2])
 	l = vae.encode(test_image)
 	print(l)
 	# plt.imshow(vae.decode(l).data.cpu().numpy(), cmap='bone')
