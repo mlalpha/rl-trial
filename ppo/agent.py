@@ -3,6 +3,7 @@ from actor import Actor
 from critic import Critic
 from tensorboardX import SummaryWriter
 import datetime
+from replay_buffer import ReplayBuffer
 
 class Agent():
     
@@ -23,6 +24,12 @@ class Agent():
         self.update_count = 0
         self.cur_ind = 0
         self.GAMMA = 0.99
+
+        self.EXPERIENCE_REPLAY = param['EXPERIENCE_REPLAY']
+        if self.EXPERIENCE_REPLAY is True:
+            self.BUFFER_SIZE = int(1e6) 
+            self.BATCH_SIZE = param['BATCH_SIZE']
+            self.buffer = ReplayBuffer(self.action_size, self.BUFFER_SIZE, self.BATCH_SIZE, self.seed)
 
     def get_memory_size(self):
         return len(self.memory[0])
@@ -84,13 +91,8 @@ class Agent():
             # timestep t
             # reward = r(t) + \sum_{t'} 
             self.memory[3][t] = self.memory[3][t] + self.memory[3][t+1] * self.GAMMA
-        '''
-        shuffle_index = np.random.permutation(memory_size)
-        self.memory[0] = self.memory[0][shuffle_index]
-        self.memory[1] = self.memory[1][shuffle_index]
-        self.memory[2] = self.memory[2][shuffle_index]
-        self.memory[3] = self.memory[3][shuffle_index]
-        '''
+
+        self.buffer.adds(self.memory[0], self.memory[1], self.memory[2], self.memory[3])
 
     def learn(self, batch_size, i_epoch):
         """
@@ -102,6 +104,29 @@ class Agent():
             state, action_took, old_actions_prob, reward, batch_size = self.get_batch(batch_size)
             if batch_size == 0:
                 break
+            advantage = self.critic.model.predict(state)
+            advantage = reward - advantage
+            actor_loss = self.actor.model.fit(
+                [
+                    state, advantage, old_actions_prob
+                ],
+                [action_took],
+                batch_size=batch_size, shuffle=True, epochs=i_epoch, verbose=False)
+            critic_loss = self.critic.model.fit([state], [reward], 
+                batch_size=batch_size, shuffle=True, epochs=i_epoch, verbose=False)
+            self.writer.add_scalar('Actor loss', actor_loss.history['loss'][-1], self.update_count)
+            self.writer.add_scalar('Critic loss', critic_loss.history['loss'][-1], self.update_count)
+            
+            self.update_count += 1
+
+    def learn_from_buffer(self, batch_size, i_epoch):
+        """
+            batch: state, action, actions_prob, reward
+        """
+
+        if self.EXPERIENCE_REPLAY is True and len(self.buffer) > batch_size:
+            experiences = self.buffer.sample()
+            state, action_took, reward, old_actions_prob = experiences
             advantage = self.critic.model.predict(state)
             advantage = reward - advantage
             actor_loss = self.actor.model.fit(
