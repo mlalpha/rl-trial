@@ -11,12 +11,13 @@ class vae_module(object):
 	def __init__(self, num_latent, state_size, img_trans=None,
 				dataset_folder="videos", dataset_format="mp4",
 				filter_size=[3, 3, 3], channels=[1, 4, 20, 20],
-				dconv_kernel_sizes=[3, 8, 15]):
+				dconv_kernel_sizes=[3, 8, 15], train=True):
 		super(vae_module, self).__init__()
 		# init trainloader
-		trainset = dataloader(dataset_folder,
-									dataset_format, img_trans)
-		self.trainloader = torch.utils.data.DataLoader(trainset,
+		if train:
+			trainset = dataloader(dataset_folder,
+										dataset_format, img_trans)
+			self.trainloader = torch.utils.data.DataLoader(trainset,
 									batch_size=100, shuffle=True)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
@@ -45,13 +46,13 @@ class vae_module(object):
 				loss = self.VAE_loss(out, images, mean, logvar)
 				loss.backward()
 				optimizer.step()
-				
+
 			if(counter % print_every == 0):
 				self.model.eval()
 				if print_f:
-					print_f(loss.data.sum().numpy())
+					print_f(loss.data.cpu().sum().numpy())
 				else:
-					print("loss.sum(): ", loss.data.sum().numpy())
+					print("loss.sum(): ", loss.data.cpu().sum().numpy())
 
 			counter += 1
 
@@ -66,7 +67,7 @@ class vae_module(object):
 		# 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
 		kl_loss = -0.5 * torch.sum(1 + logvar - mean**2 - torch.exp(logvar))
 		kl_loss /= scaling_factor
-		
+
 		return bce_loss + kl_loss
 
 	def save(self, path="vae.pt"):
@@ -77,9 +78,11 @@ class vae_module(object):
 			self.model.load_state_dict(torch.load(path))
 		else:
 			self.model.load_state_dict(torch.load(path, map_location='cpu'))
+		self.model.eval()
 
 	def encode(self, data):
-		self.model.enc_func(data)
+		m, l = self.model.enc_func(data)
+		return self.model.get_hidden(m, l)
 
 	def decode(self, data):
-		self.model.dec_func(data)
+		return self.model.dec_func(data)
