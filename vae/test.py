@@ -33,7 +33,8 @@ def use_vae():
 		x.append(l)
 		plt.plot(x, 'b-')
 		plt.title('loss')
-		plt.show('VAE Loss')
+		# plt.show('VAE Loss')
+		plt.savefig('VAE_Loss.png')
 
 	test_image = load_test_image(size=(IMAGE_SIZE, IMAGE_SIZE))
 	if test_image is not None:
