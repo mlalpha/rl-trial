@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 def use_vae():
 	IMAGE_SIZE = 84
@@ -29,6 +28,7 @@ def use_vae():
 		plt.title('loss')
 		# plt.show('VAE Loss')
 		plt.savefig('VAE_Loss.png')
+		print(l)
 
 	img_size = IMAGE_SIZE**2
 	num_latent = 1024
