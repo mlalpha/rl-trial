@@ -19,10 +19,15 @@ class dataloader(Dataset):
 		fileIdx = 0
 		for filename in self.fileLst:
 			cap = cv2.VideoCapture(filename)
-			if cap.isOpened():
-				self.len += int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-				for frameIdx in range(0, self.len):
+			frameIdx = 0
+			while cap.isOpened():
+				ret, frame = cap.read()
+				if frame is None:
+					break
+				if ret:
+					self.len += 1
 					self.filenframe_idx.append([fileIdx, frameIdx])
+					frameIdx += 1
 			cap.release()
 			fileIdx += 1
 
@@ -47,8 +52,8 @@ class dataloader(Dataset):
 
 class buffer_dataloader(Dataset):
 	"""docstring for buffer_dataloader"""
-	def __init__(self, folder_name="videos", filename_extension=".mp4",
-				buffer_folder_name="buffer", transform=None):
+	def __init__(self, folder_name="videos", filename_extension=".mp4", transform=None,
+				buffer_folder_name="buffer"):
 		super(buffer_dataloader, self).__init__()
 		self.transform = transform
 		fileLst = []
@@ -59,14 +64,19 @@ class buffer_dataloader(Dataset):
 		if not os.path.exists(buffer_folder_name):
 			os.makedirs(buffer_folder_name)
 		self.fileLst = []
+		filenum = 0
 		for filename in fileLst:
+			filenum += 1
 			cap = cv2.VideoCapture(filename)
 			count = 0
 			while cap.isOpened():
 				ret, frame = cap.read()
+				if frame is None:
+					break
 				if ret:
-					path = os.path.join(buffer_folder_name, filename + count + ".png")
-					cv2.imwrite(path, frame)
+					path = os.path.join(buffer_folder_name, str(filenum) + str(count) + ".png")
+					if not os.path.exists(path):
+						cv2.imwrite(path, frame)
 					self.fileLst.append(path)
 					count += 1
 			cap.release()
@@ -77,8 +87,6 @@ class buffer_dataloader(Dataset):
 	def __getitem__(self, idx):
 		img_name = self.fileLst[idx]
 		image = cv2.imread(img_name)
-
-		if self.transform:
-			image = self.transform(image)
+		image = self.transform(image)
 
 		return image # we ignored label here # return image, label

@@ -10,7 +10,8 @@ class vae_module(object):
 	"""docstring for vae_module"""
 	def __init__(self, num_latent, state_size, img_trans=None,
 				dataset_folder="videos", dataset_format="mp4",
-				filter_size=[3, 3, 3], channels=[1, 4, 20, 20]):
+				filter_size=[3, 3, 3], channels=[1, 4, 20, 20],
+				dconv_kernel_sizes=[3, 8, 15]):
 		super(vae_module, self).__init__()
 		# init trainloader
 		trainset = dataloader(dataset_folder,
@@ -19,30 +20,26 @@ class vae_module(object):
 									batch_size=100, shuffle=True)
 		self.model = model1.VAE(num_latent,
 								state_size, filter_size,
-								channels)
-		
-	def train(self, iters=26, num_latent=8, print_every=5):
+								channels, dconv_kernel_sizes)
+
+	def train(self, iters=26, print_every=5, print_func=None):
 	    #print after every 5 iterations
-		# model = VAE(num_latent, state_size)
 
 		device = ('cuda' if torch.cuda.is_available() else 'cpu')
 		import torch.optim as optim
 		optimizer = optim.Adam(self.model.parameters(), lr=1e-3)
 
-		self._train(iters, device, optimizer, print_every)
-		# train.train_model(self.model,
-		# 	self.trainloader, iters,
-		# 	num_latent, print_every)
+		self._train(iters, device, optimizer, print_every, print_func)
 
 	######The function which we will call for training our model
 
-	def _train(self, iters, device, optimizer, print_every):
+	def _train(self, iters, device, optimizer, print_every, print_f=None):
 		counter = 0
 		for i in range(iters):
 			self.model.train()
 			self.model.to(device)
 			for images in self.trainloader:
-				images = images.float().to(device)
+				images = images.to(device)
 				optimizer.zero_grad()
 				out, mean, logvar = self.model(images)
 				loss = self.VAE_loss(out, images, mean, logvar)
@@ -51,7 +48,10 @@ class vae_module(object):
 				
 			if(counter % print_every == 0):
 				self.model.eval()
-				print(loss.numpy().sum())
+				if print_f:
+					print_f(loss.data.sum().numpy())
+				else:
+					print("loss.sum(): ", loss.data.sum().numpy())
 
 			counter += 1
 
@@ -77,3 +77,6 @@ class vae_module(object):
 
 	def encode(self, data):
 		self.model.enc_func(data)
+
+	def decode(self, data):
+		self.model.dec_func(data)

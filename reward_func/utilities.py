@@ -34,3 +34,6 @@ def state_similarity(s, n=5):
 def init():
 	global storage
 	storage = []
+
+def torch_save_model(model):
+	torch.save(model, 'model.pt')

@@ -8,7 +8,7 @@ The reward system will be divided into two parts:
 This part cannot be saved with model before it has been encaptured into class
 
 ## exploring reward
-Store states (output of CNN/VAE intermediate result) and use Cosine distance as reward, encourage actor try if new state of environment can been found.
+Store states (output of CNN/VAE intermediate result) and use Cosine distance as reward, encourage actor try if new state of environment can been found. To encourage actor try more on new observation, K-Mean was introduced to keep reward for observing states not oftenly seen by actor.
 
 ## mistake avoid reward
 - Punishment on mistake  
@@ -18,7 +18,7 @@ Train RNN on last 100 states for game play fails
 RNN predict if actor will fail or not base on states  
 
 ```
-reward_t = reward_(t-1) * 0.9 + abs(reward_(t-1) - reward_system)
+reward_t = reward_(t-1) * 0.9999 + abs(reward_(t-1) - reward_system)
 ```
 
 ### RNN (GRU)

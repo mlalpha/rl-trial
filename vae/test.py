@@ -3,15 +3,20 @@ from vae import vae_module
 import cv2
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 def use_vae():
-	IMAGE_SIZE = 12
+	IMAGE_SIZE = 84
+	x = []
 
 	def resize(img, size):
 		return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
 	def load_test_image(path='./test_img.png', size=(36, 36)):
 		pic = cv2.imread(path)
+		if pic is None:
+			return None
 		return resize(pic, size)
 
 	def rgb2gray(img):
@@ -19,21 +24,32 @@ def use_vae():
 
 	def img_transform(img):
 		gray_image = rgb2gray(img)
-		small_image = resize(gray_image, size=(IMAGE_SIZE, IMAGE_SIZE))
-		matrix = small_image / 255.0
-		# return np.expand_dims(matrix, axis=0).astype(np.double)
-		return np.expand_dims(matrix, axis=0)
+		matrix = resize(gray_image, size=(IMAGE_SIZE, IMAGE_SIZE))
+		matrix = matrix / 255.0
+		return matrix.reshape(1, matrix.shape[0], matrix.shape[1]).astype(np.float32)
 
-	test_image = load_test_image()
-	test_image = img_transform(test_image)
-	test_image = torch.from_numpy(test_image)
+	def draw_function(l):
+		nonlocal x
+		x.append(l)
+		plt.plot(x, 'b-')
+		plt.title('loss')
+		plt.show('VAE Loss')
+
+	test_image = load_test_image(size=(IMAGE_SIZE, IMAGE_SIZE))
+	if test_image is not None:
+		test_image = img_transform(test_image)
+		test_image = torch.from_numpy(test_image)
 
 	img_size = IMAGE_SIZE**2
-	num_latent = 5
+	num_latent = 1024
+	dconv_kernel_sizes = [7, 21, 40]
 
-	vae = vae_module(num_latent, img_size, img_transform)
-	vae.train(26, num_latent, 5)
-	print(vae.encode(test_image))
+	vae = vae_module(num_latent, img_size, img_transform, dconv_kernel_sizes=dconv_kernel_sizes)
+	vae.train(26, 5, draw_function)
+	if test_image is not None:
+		l = vae.encode(test_image)
+		print(l)
+		print(vae.decode(l))
 
 	vae.save()
 
