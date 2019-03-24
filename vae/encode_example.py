@@ -42,7 +42,8 @@ def use_vae():
 	vae.load()
 	l = vae.encode(test_input)
 	print(l)
-	dec_img = vae.decode(l).data.cpu().numpy().reshape(dec_img.shape[2:])*255
+	dec_img = vae.decode(l).data.cpu().numpy()
+	dec_img = dec_img.reshape(dec_img.shape[2:])*255
 	plt.figure()
 	plt.imshow(dec_img.astype(np.int), cmap='bone')
 	plt.show()
