@@ -17,12 +17,12 @@ print('State shape: ', state_space)
 print('Number of actions: ', action_space)
 
 BATCH_SIZE = 3000
-experience_replay = True
-BUFFER_SIZE = int(1e6)
+EXPERIENCE_REPLAY = False
+BUFFER_SIZE = int(1e5)
 
 agent = Agent(state_space, action_space, level_name=level_name, \
     param={
-        'EXPERIENCE_REPLAY': experience_replay,
+        'EXPERIENCE_REPLAY': EXPERIENCE_REPLAY,
         'BUFFER_SIZE': BUFFER_SIZE,
         'BATCH_SIZE': BATCH_SIZE
     })
@@ -75,6 +75,7 @@ def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
             target_max_mean_score += 1.5
             # break
         agent.learn(BATCH_SIZE, i_episode)
-        agent.learn_from_buffer(BATCH_SIZE, i_episode)
+        if EXPERIENCE_REPLAY is True:
+            agent.learn_from_buffer(BATCH_SIZE, i_episode)
 
 ppo(agent)
