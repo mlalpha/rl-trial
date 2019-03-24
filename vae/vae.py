@@ -46,7 +46,7 @@ class vae_module(object):
 				loss = self.VAE_loss(out, images, mean, logvar)
 				loss.backward()
 				optimizer.step()
-				
+
 			if(counter % print_every == 0):
 				self.model.eval()
 				if print_f:
@@ -67,7 +67,7 @@ class vae_module(object):
 		# 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
 		kl_loss = -0.5 * torch.sum(1 + logvar - mean**2 - torch.exp(logvar))
 		kl_loss /= scaling_factor
-		
+
 		return bce_loss + kl_loss
 
 	def save(self, path="vae.pt"):
@@ -81,7 +81,8 @@ class vae_module(object):
 		self.model.eval()
 
 	def encode(self, data):
-		self.model.enc_func(data)
+		m, l = self.model.enc_func(data)
+		return self.model.get_hidden(m, l)
 
 	def decode(self, data):
-		self.model.dec_func(data)
+		return self.model.dec_func(data)
