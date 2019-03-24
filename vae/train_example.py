@@ -30,11 +30,6 @@ def use_vae():
 		# plt.show('VAE Loss')
 		plt.savefig('VAE_Loss.png')
 
-	test_image = load_test_image(size=(IMAGE_SIZE, IMAGE_SIZE))
-	if test_image is not None:
-		test_image = img_transform(test_image)
-		test_image = torch.from_numpy(test_image)
-
 	img_size = IMAGE_SIZE**2
 	num_latent = 1024
 	dconv_kernel_sizes = [7, 21, 40]
