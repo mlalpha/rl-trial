@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 
 def use_vae():
 	IMAGE_SIZE = 84
@@ -16,8 +15,9 @@ def use_vae():
 	def load_test_image(path='./test_img.png', size=(36, 36)):
 		pic = cv2.imread(path)
 		if pic is None:
-			return None
-		return resize(pic, size)
+			raise 'Error, ' + path + ' not found'
+		img = resize(pic, size)
+		return img_transform(img)
 
 	def rgb2gray(img):
 		return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -29,8 +29,10 @@ def use_vae():
 		return matrix.reshape(1, matrix.shape[0], matrix.shape[1]).astype(np.float32)
 
 	test_image = load_test_image(size=(IMAGE_SIZE, IMAGE_SIZE))
-	test_image = img_transform(test_image)
-	test_image = torch.from_numpy(test_image)
+	test_image = np.expand_dims(test_image, axis=0)
+	test_input = torch.from_numpy(test_image)
+	plt.figure()
+	plt.imshow(test_image.reshape(test_image.shape[2:]), cmap='bone')
 
 	img_size = IMAGE_SIZE**2
 	num_latent = 1024
@@ -38,10 +40,12 @@ def use_vae():
 
 	vae = vae_module(num_latent, img_size, img_transform, dconv_kernel_sizes=dconv_kernel_sizes, train=False)
 	vae.load()
-	test_image = test_image.reshape(1, test_image.shape[0], test_image.shape[1], test_image.shape[2])
-	l = vae.encode(test_image)
+	l = vae.encode(test_input)
 	print(l)
-	# plt.imshow(vae.decode(l).data.cpu().numpy(), cmap='bone')
+	dec_img = vae.decode(l).data.cpu().numpy()
+	plt.figure()
+	plt.imshow(dec_img.reshape(dec_img.shape[2:]), cmap='bone')
+	plt.show()
 
 
 use_vae()
