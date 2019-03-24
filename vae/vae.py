@@ -77,6 +77,7 @@ class vae_module(object):
 			self.model.load_state_dict(torch.load(path))
 		else:
 			self.model.load_state_dict(torch.load(path, map_location='cpu'))
+		self.model.eval()
 
 	def encode(self, data):
 		self.model.enc_func(data)
