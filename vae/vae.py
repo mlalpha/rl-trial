@@ -69,10 +69,10 @@ class vae_module(object):
 		
 		return bce_loss + kl_loss
 
-	def save(self, path="vae.pkl"):
+	def save(self, path="vae.pt"):
 		torch.save(self.model.state_dict(), path)
 
-	def load(self, path="vae.pkl"):
+	def load(self, path="vae.pt"):
 		if torch.cuda.is_available():
 			self.model.load_state_dict(torch.load(path))
 		else:
