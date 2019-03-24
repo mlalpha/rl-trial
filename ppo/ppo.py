@@ -74,7 +74,9 @@ def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
             agent.save_model()
             target_max_mean_score += 1.5
             # break
-        agent.learn(BATCH_SIZE, i_episode)
+        agent.compute_decay_reward()
+        if i_episode % 4 == 0:
+            agent.learn(BATCH_SIZE, i_episode)
         if EXPERIENCE_REPLAY is True:
             agent.learn_from_buffer(BATCH_SIZE, i_episode)
 
