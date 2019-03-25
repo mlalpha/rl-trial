@@ -27,6 +27,15 @@ agent = Agent(state_space, action_space, level_name=level_name, \
         'BATCH_SIZE': BATCH_SIZE
     })
 
+def add_noise(state):
+    row,col,ch= state.shape
+    mean = 0
+    var = 0.1
+    sigma = var**0.5
+    gauss = np.random.normal(mean,sigma,(row,col,ch))
+    gauss = gauss.reshape(row,col,ch)
+    noisy = state + gauss
+    return noisy
 
 def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
     scores = []
@@ -39,6 +48,7 @@ def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
         negative_reward = 0
         for _ in range(max_t):
             state = state/255.0
+            state = add_noise(state)
             action, action_took, actions_prob = agent.act(state)
             next_state, reward, done, _ = env.step(action)
             # env.render()
