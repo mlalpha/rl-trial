@@ -26,7 +26,7 @@ class Agent():
         self.cur_ind = 0
         self.GAMMA = 0.99
 
-        self.EXPERIENCE_REPLAY = param['EXPERIENCE_REPLAY']
+        self.EXPERIENCE_REPLAY = param.get('EXPERIENCE_REPLAY', False)
         if self.EXPERIENCE_REPLAY is True:
             self.BUFFER_SIZE = param['BUFFER_SIZE'] 
             self.BATCH_SIZE = param['BATCH_SIZE']
@@ -73,9 +73,11 @@ class Agent():
         return state, action_took, old_actions_prob, reward, batch_size
         
     def reset_memory(self):
+        del self.memory
         self.memory = [[], [], [], []]
 
     def reset_memories(self):
+        del self.memories
         self.memories = [[], [], [], []]
 
     def step(self, state, action_took, actions_prob, reward):
@@ -116,20 +118,17 @@ class Agent():
             # reward = r(t) + \sum_{t'} 
             self.memory[3][t] = self.memory[3][t] + self.memory[3][t+1] * self.GAMMA
 
-        self.memories.extend(self.memory)
-
         if self.EXPERIENCE_REPLAY is True:
             self.buffer.adds(self.memory[0], self.memory[1], self.memory[2], self.memory[3])
-        
-        self.reset_memory()
+    
 
     def learn(self, batch_size, i_epoch):
         """
             batch: state, action, actions_prob, reward
         """
 
-        while self.get_memories_size() != 0:
-            state, action_took, old_actions_prob, reward, batch_size = self.get_memories_batch(batch_size)
+        while self.get_memory_size() != 0:
+            state, action_took, old_actions_prob, reward, batch_size = self.get_batch(batch_size)
             if batch_size == 0:
                 break
             advantage = self.critic.model.predict(state)

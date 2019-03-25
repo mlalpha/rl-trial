@@ -62,8 +62,9 @@ def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
 
         agent.writer.add_scalar('Episode Reward', score, i_episode)
 
-        if score > 60:
+        if score > 55:
             print('\nThis Episode {}\tScore: {:.2f}'.format(i_episode, score), end="\n")
+            agent.save_model()
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % max_t_interval == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
@@ -75,8 +76,8 @@ def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
             target_max_mean_score += 1.5
             # break
         agent.compute_decay_reward()
-        if i_episode % 4 == 0:
-            agent.learn(BATCH_SIZE, i_episode)
+        #if i_episode % 4 == 0:
+        agent.learn(BATCH_SIZE, i_episode)
         if EXPERIENCE_REPLAY is True:
             agent.learn_from_buffer(BATCH_SIZE, i_episode)
 
