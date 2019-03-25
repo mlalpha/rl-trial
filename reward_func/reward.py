@@ -8,6 +8,7 @@ rewards = []
 model = None
 hidden = None
 optimizer = None
+criterion = None
 
 def reward_trans(old_reward, state):
 	global rewards
@@ -29,7 +30,7 @@ def reward_trans(old_reward, state):
 
 
 def reward_init():
-	global rewards, model, hidden, optimizer
+	global rewards, model, hidden, optimizer, criterion
 	rewards = []
 	# release GRU
 	utilities.init()
@@ -46,7 +47,7 @@ def reward_init():
 
 
 def train_rnn(input_data, reward_data):
-	global model, hidden, optimizer
+	global model, hidden, optimizer, criterion
         model.zero_grad()
         output, hidden = model(input_data, var(hidden.data))
         loss = criterion(output, reward_data)
