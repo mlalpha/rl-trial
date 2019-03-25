@@ -73,7 +73,10 @@ class vae_module(object):
 		torch.save(self.model.state_dict(), path)
 
 	def load(self, path="vae.pkl"):
-		self.model.load_state_dict(torch.load(path))
+		if torch.cuda.is_available():
+			self.model.load_state_dict(torch.load(path))
+		else:
+			self.model.load_state_dict(torch.load(path, map_location='cpu'))
 
 	def encode(self, data):
 		self.model.enc_func(data)
