@@ -12,6 +12,12 @@ require pytorch
 A simple VAE in CNN + FC  
 Based on https://github.com/aniket-agarwal1999/VAE-Pytorch
 
+### encoder_model_0.pt
+Requires:
+```
+dconv_kernel_sizes = [7, 21, 40]
+```
+
 ## model3
 require pytorch
 
