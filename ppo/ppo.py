@@ -6,7 +6,7 @@ from agent import Agent
 from collections import deque
 import numpy as np
 
-level_name='GreenHillZone.Act1'
+level_name='LabyrinthZone.Act1'
 env = make_env(level_name=level_name, \
                 stack=False, scale_rew=True)
 env.seed = 714
@@ -85,7 +85,7 @@ def ppo(agent, n_episodes=10000, max_t=4500, max_t_interval = 100):
             max_mean_score = np.mean(scores_window)
             print('\nEnvironment enhanced in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode, max_mean_score))
             agent.save_model()
-            target_max_mean_score += 1.5
+            target_max_mean_score += 1
             # break
         agent.compute_decay_reward()
         #if i_episode % 4 == 0:

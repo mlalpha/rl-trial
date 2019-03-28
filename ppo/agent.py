@@ -18,8 +18,8 @@ class Agent():
         self.critic = Critic(state_size, action_size)
         self.level_name = level_name
         timestampe = datetime.datetime.now().strftime("%Y_%m_%d_%H%M")
-        self.writer = SummaryWriter('logs/%s/%s'%(self.level_name, timestampe), write_graph=True)
-        self.best_weight_fn = 'ppo_best_%s.h5'
+        self.writer = SummaryWriter('logs/%s/%s'%(self.level_name, timestampe))
+        self.best_weight_fn = 'ppo_best_%s_' + level_name.lower().replace('.', '_') + '.h5'
         self.memory = [[], [], [], []]
         self.update_count = 0
         self.cur_ind = 0
