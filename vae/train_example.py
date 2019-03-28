@@ -32,9 +32,8 @@ def use_vae():
 
 	img_size = IMAGE_SIZE**2
 	num_latent = 1024
-	dconv_kernel_sizes = [3, 8, 15, 42]
 
-	vae = vae_module(num_latent, img_size, img_transform, dconv_kernel_sizes=dconv_kernel_sizes)
+	vae = vae_module(num_latent, img_size, img_transform)
 	vae.train(26, 5, draw_function)
 
 	vae.save()
