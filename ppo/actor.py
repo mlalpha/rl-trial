@@ -9,9 +9,9 @@ class Actor():
 
     def __init__(self, state_size, action_size, hyper_param={}, seed=714):
         hyper_param = {
-            'lr': 1e-6,
+            'lr': 1e-7,
         }
-        self.seed = 129
+        self.seed = 714
 
         self.state_size = state_size
         self.action_size = action_size
@@ -46,7 +46,7 @@ class Actor():
 
     def proximal_policy_optimization_loss(self, advantage, old_prediction):
         LOSS_CLIPPING = 0.2
-        ENTROPY_LOSS = 0.01
+        ENTROPY_LOSS = 0.007
         def loss(y_true, y_pred):
             prob = y_true * y_pred
             old_prob = y_true * old_prediction

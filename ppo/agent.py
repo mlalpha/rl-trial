@@ -18,10 +18,9 @@ class Agent():
         self.critic = Critic(state_size, action_size)
         self.level_name = level_name
         timestampe = datetime.datetime.now().strftime("%Y_%m_%d_%H%M")
-        self.writer = SummaryWriter('logs/%s/%s'%(self.level_name, timestampe))
+        self.writer = SummaryWriter('logs/%s/%s'%(self.level_name, timestampe), write_graph=True)
         self.best_weight_fn = 'ppo_best_%s.h5'
         self.memory = [[], [], [], []]
-        self.memories = [[], [], [], []]
         self.update_count = 0
         self.cur_ind = 0
         self.GAMMA = 0.99
@@ -34,9 +33,6 @@ class Agent():
 
     def get_memory_size(self):
         return len(self.memory[0])
-    
-    def get_memories_size(self):
-        return len(self.memories[0])
 
     def get_batch(self, batch_size):
         start, end = self.cur_ind, self.cur_ind + batch_size
@@ -54,31 +50,10 @@ class Agent():
             self.reset_memory()
         
         return state, action_took, old_actions_prob, reward, batch_size
- 
-    def get_memories_batch(self, batch_size):
-        start, end = self.cur_ind, self.cur_ind + batch_size
-        self.cur_ind += batch_size
-        if end >= self.get_memories_size():
-            end = self.get_memories_size()
-            self.cur_ind = 0
-            batch_size = end - start
-        state = np.array(self.memories[0][start:end])
-        action_took = np.array(self.memories[1][start:end])
-        old_actions_prob = np.array(self.memories[2][start:end])
-        reward = np.array(self.memories[3][start:end]).reshape(batch_size, 1)
-
-        if self.cur_ind == 0:
-            self.reset_memories()
-        
-        return state, action_took, old_actions_prob, reward, batch_size
         
     def reset_memory(self):
         del self.memory
         self.memory = [[], [], [], []]
-
-    def reset_memories(self):
-        del self.memories
-        self.memories = [[], [], [], []]
 
     def step(self, state, action_took, actions_prob, reward):
         self.memory[0].append(state)
@@ -170,9 +145,16 @@ class Agent():
             self.update_count += 1
 
 
-    def save_model(self):
-        self.actor.save_model(self.best_weight_fn%'actor')
-        self.critic.save_model(self.best_weight_fn%'critic')    
+    def save_model(self, name = None):
+        if name is None:
+            actor_name = self.best_weight_fn%'actor'
+            critic_name = self.best_weight_fn%'critic'
+        else:
+            actor_name = name + 'actor' + '.h5'
+            critic_name = name + 'critic' + '.h5'
+
+        self.actor.save_model(actor_name)
+        self.critic.save_model(critic_name)    
 
     def load_model(self, actor_model_fn, critic_model_fn):
         self.actor.load_model(actor_model_fn)

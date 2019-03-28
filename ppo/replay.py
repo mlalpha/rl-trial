@@ -35,14 +35,14 @@ def recording(recording_env, recording_agent, weight_name):
 #     return latest_fn%(weight_fn, epoch)
 
 
-def build_env(level_name='LabyrinthZone.Act1'):
+def build_env(level_name):
     env = make_env(stack=False, scale_rew=True, level_name=level_name)
     return env
 
 # LabyrinthZone.Act1
 # GreenHillZone.Act1
 # GreenHillZone.Act2
-env = build_env(level_name='GreenHillZone.Act2')
+env = build_env(level_name='GreenHillZone.Act1')
 
 state_space = list(env.observation_space.shape)
 action_space = env.action_space.n

@@ -16,7 +16,7 @@ def make_env(level_name, stack=True, scale_rew=True):
    #env = grc.RemoteEnv('tmp/sock')
    #LabyrinthZone.Act1
    #GreenHillZone.Act1
-    env = make(game='SonicTheHedgehog-Genesis', state=level_name)
+    env = make(game='SonicTheHedgehog-Genesis', state=level_name, bk2dir = './record')
     # , bk2dir='gamelog/'
     env = SonicDiscretizer(env)
     if scale_rew:
