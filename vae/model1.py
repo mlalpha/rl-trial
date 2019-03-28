@@ -24,7 +24,7 @@ class VAE(nn.Module):
 		#These two layers are for getting logvar and mean
 		encoder_out_size = state_size // 64
 		encoder_out_width = int(math.sqrt(encoder_out_size))
-		self.fc1_in_shape = [-1, channels[3], encoder_out_width, encoder_out_width]
+		self.fc1_in_shape = [-1, channels[-1], encoder_out_width, encoder_out_width]
 		self.fc1_in_size = channels[-1] * encoder_out_size
 		fc2_in_size = self.fc1_in_size // 3
 		fc2_out_size = fc2_in_size // 2
@@ -39,11 +39,11 @@ class VAE(nn.Module):
 		self.fc3 = nn.Linear(fc2_out_size, fc2_in_size)
 		self.fc4 = nn.Linear(fc2_in_size, self.fc1_in_size)
 		self.decoder = nn.Sequential(nn.ConvTranspose2d(channels[-1], channels[-2], dconv_filter_size[0], padding=1),
-									nn.BatchNorm2d(channels[2]),
+									nn.BatchNorm2d(channels[-2]),
 									nn.ConvTranspose2d(channels[-2], channels[-3], dconv_filter_size[1]),
-									nn.BatchNorm2d(channels[1]),
+									nn.BatchNorm2d(channels[-3]),
 									nn.ConvTranspose2d(channels[-3], channels[-4], dconv_filter_size[2]),
-									nn.BatchNorm2d(channels[1]),
+									nn.BatchNorm2d(channels[-4]),
 									nn.ConvTranspose2d(channels[-4], channels[-5], dconv_filter_size[3]))
 		
 	def enc_func(self, x):
