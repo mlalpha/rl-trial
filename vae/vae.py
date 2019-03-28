@@ -57,7 +57,7 @@ class vae_module(object):
 			counter += 1
 
 	def VAE_loss(self, out, target, mean, logvar):
-		category1 = nn.CrossEntropyLoss()
+		category1 = nn.BCELoss()
 		bce_loss = category1(out, target)
 		
 		#We will scale the following losses with this factor
