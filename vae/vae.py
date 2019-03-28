@@ -57,9 +57,8 @@ class vae_module(object):
 			counter += 1
 
 	def VAE_loss(self, out, target, mean, logvar):
-		category1 = nn.BCELoss()
-		m = nn.Sigmoid()
-		bce_loss = category1(m(out), m(target))
+		category1 = nn.CrossEntropyLoss()
+		bce_loss = category1(out, target)
 		
 		#We will scale the following losses with this factor
 		scaling_factor = out.shape[0]*out.shape[1]*out.shape[2]*out.shape[3]
