@@ -38,13 +38,14 @@ class VAE(nn.Module):
 		self.expand = nn.Linear(num_latent, fc2_out_size)
 		self.fc3 = nn.Linear(fc2_out_size, fc2_in_size)
 		self.fc4 = nn.Linear(fc2_in_size, self.fc1_in_size)
-		self.decoder = nn.Sequential(nn.ConvTranspose2d(channels[-1], channels[-2], dconv_filter_size[0], padding=1),
-									nn.BatchNorm2d(channels[-2]),
-									nn.ConvTranspose2d(channels[-2], channels[-3], dconv_filter_size[1]),
-									nn.BatchNorm2d(channels[-3]),
-									nn.ConvTranspose2d(channels[-3], channels[-4], dconv_filter_size[2]),
-									nn.BatchNorm2d(channels[-4]),
-									nn.ConvTranspose2d(channels[-4], channels[-5], dconv_filter_size[3]))
+		self.decoder = nn.Sequential(nn.ConvTranspose2d(channels[4], channels[3], dconv_filter_size[0], padding=1),
+									nn.BatchNorm2d(channels[3]),
+									nn.ConvTranspose2d(channels[3], channels[2], dconv_filter_size[1]),
+									nn.BatchNorm2d(channels[2]),
+									nn.ConvTranspose2d(channels[2], channels[1], dconv_filter_size[2]),
+									nn.BatchNorm2d(channels[1]),
+									nn.ConvTranspose2d(channels[1], channels[0], dconv_filter_size[3]),
+									nn.sigmoid())
 		
 	def enc_func(self, x):
 		#here we will be returning the logvar(log variance) and mean of our network
