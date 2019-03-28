@@ -40,7 +40,7 @@ def reward_init():
 	if cuda:
 	    model.cuda()
 	criterion = nn.CrossEntropyLoss()
-	optimizer = optim.Adam(model.parameters(), lr=lr)
+	optimizer = optim.SGD(model.parameters(), lr=lr, momentum=0.9)
 
     model.train()
     hidden = model.initHidden()

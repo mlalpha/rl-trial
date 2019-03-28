@@ -31,4 +31,8 @@ if actor did not fail, then `reward_t += possibility_of_fail * MAX_REWARD` or re
 
 training data: FAIL_PUNISH as a quadratic function, root from bad end (reward = FAIL_PUNISH) trace backward to the previous state where action != no_action (reward = 0)
 
-May be this can be trained in DQN way?
+https://github.com/keishinkickback/Pytorch-RNN-text-classification
+
+https://morvanzhou.github.io/tutorials/machine-learning/torch/4-03-RNN-regression/
+
+https://github.com/keishinkickback/Pytorch-RNN-text-classification/blob/master/model.py
