@@ -8,3 +8,4 @@
 ppo/logs/
 events.out.*
 .idea
+*.jpeg
