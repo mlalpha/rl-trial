@@ -6,7 +6,7 @@ import torch
 import matplotlib.pyplot as plt
 
 def use_vae():
-	IMAGE_SIZE = 84
+	IMAGE_SIZE = 88
 	x = []
 
 	def resize(img, size):
