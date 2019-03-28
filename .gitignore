@@ -6,3 +6,5 @@
 .vscode
 *.png
 ppo/logs/
+events.out.*
+.idea
