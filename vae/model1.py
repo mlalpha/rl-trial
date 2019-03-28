@@ -6,7 +6,7 @@ import math
 ########Definition of the architecture of our encoder and decoder model with all the assisting functions
 
 class VAE(nn.Module):
-	def __init__(self, num_latent, state_size, filter_size=[3, 3, 3, 3], channels=[1, 4, 20, 128, 128], dconv_filter_size=[3, 8, 15, 42]):
+	def __init__(self, num_latent, state_size, filter_size=[3, 3, 3, 3], channels=[1, 4, 20, 60, 60], dconv_filter_size=[3, 8, 15, 42]):
 		super().__init__()
 		
 		#So here we will first define layers for encoder network
