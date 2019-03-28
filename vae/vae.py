@@ -10,8 +10,8 @@ class vae_module(object):
 	"""docstring for vae_module"""
 	def __init__(self, num_latent, state_size, img_trans=None,
 				dataset_folder="videos", dataset_format="mp4",
-				filter_size=[3, 3, 3], channels=[1, 4, 20, 20],
-				dconv_kernel_sizes=[3, 8, 15], train=True):
+				filter_size=[3, 3, 3, 3], channels=[1, 4, 20, 128, 128],
+				dconv_kernel_sizes=[3, 8, 15, 42], train=True):
 		super(vae_module, self).__init__()
 		# init trainloader
 		if train:
