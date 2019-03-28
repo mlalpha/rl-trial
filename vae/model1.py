@@ -6,7 +6,7 @@ import math
 ########Definition of the architecture of our encoder and decoder model with all the assisting functions
 
 class VAE(nn.Module):
-	def __init__(self, num_latent, state_size, filter_size=[3, 3, 3], channels=[1, 4, 20, 20], dconv_filter_size=[3, 8, 15]):
+	def __init__(self, num_latent, state_size, filter_size=[3, 3, 3, 3], channels=[1, 4, 20, 128, 128], dconv_filter_size=[3, 8, 15, 42]):
 		super().__init__()
 		
 		#So here we will first define layers for encoder network
@@ -16,13 +16,16 @@ class VAE(nn.Module):
 									 nn.Conv2d(channels[1], channels[2], filter_size[1], padding=1),
 									 nn.MaxPool2d(2, 2),
 									 nn.BatchNorm2d(channels[2]),
-									 nn.Conv2d(channels[2], channels[3], filter_size[2], padding=1))
+									 nn.Conv2d(channels[2], channels[3], filter_size[2], padding=1)),
+									 nn.MaxPool2d(2, 2),
+									 nn.BatchNorm2d(channels[3]),
+									 nn.Conv2d(channels[3], channels[4], filter_size[3], padding=1))
 		
 		#These two layers are for getting logvar and mean
-		encoder_out_size = state_size // 16
+		encoder_out_size = state_size // 64
 		encoder_out_width = int(math.sqrt(encoder_out_size))
 		self.fc1_in_shape = [-1, channels[3], encoder_out_width, encoder_out_width]
-		self.fc1_in_size = channels[3] * encoder_out_size
+		self.fc1_in_size = channels[-1] * encoder_out_size
 		fc2_in_size = self.fc1_in_size // 3
 		fc2_out_size = fc2_in_size // 2
 		self.fc1 = nn.Linear(self.fc1_in_size, fc2_in_size)
@@ -35,11 +38,13 @@ class VAE(nn.Module):
 		self.expand = nn.Linear(num_latent, fc2_out_size)
 		self.fc3 = nn.Linear(fc2_out_size, fc2_in_size)
 		self.fc4 = nn.Linear(fc2_in_size, self.fc1_in_size)
-		self.decoder = nn.Sequential(nn.ConvTranspose2d(channels[3], channels[2], dconv_filter_size[0], padding=1),
+		self.decoder = nn.Sequential(nn.ConvTranspose2d(channels[-1], channels[-2], dconv_filter_size[0], padding=1),
 									 nn.BatchNorm2d(channels[2]),
-									 nn.ConvTranspose2d(channels[2], channels[1], dconv_filter_size[1]),
+									 nn.ConvTranspose2d(channels[-2], channels[-3], dconv_filter_size[1]),
 									 nn.BatchNorm2d(channels[1]),
-									 nn.ConvTranspose2d(channels[1], channels[0], dconv_filter_size[2]))
+									 nn.ConvTranspose2d(channels[-3], channels[-4], dconv_filter_size[2])),
+									 nn.BatchNorm2d(channels[1]),
+									 nn.ConvTranspose2d(channels[-4], channels[-5], dconv_filter_size[3]))
 		
 	def enc_func(self, x):
 		#here we will be returning the logvar(log variance) and mean of our network
