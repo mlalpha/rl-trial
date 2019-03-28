@@ -44,8 +44,7 @@ class VAE(nn.Module):
 									nn.BatchNorm2d(channels[2]),
 									nn.ConvTranspose2d(channels[2], channels[1], dconv_filter_size[2]),
 									nn.BatchNorm2d(channels[1]),
-									nn.ConvTranspose2d(channels[1], channels[0], dconv_filter_size[3]),
-									nn.Sigmoid())
+									nn.ConvTranspose2d(channels[1], channels[0], dconv_filter_size[3]))
 		
 	def enc_func(self, x):
 		#here we will be returning the logvar(log variance) and mean of our network
