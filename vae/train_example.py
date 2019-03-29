@@ -34,7 +34,7 @@ def use_vae():
 	num_latent = 1024
 
 	vae = vae_module(num_latent, img_size, img_transform)
-	vae.train(26, 5, draw_function)
+	vae.train(26, 1, draw_function)
 
 	vae.save()
 
