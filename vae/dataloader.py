@@ -3,6 +3,7 @@
 from torch.utils.data import Dataset
 import os
 import cv2
+import numpy as np
 
 class dataloader(Dataset):
 	"""docstring for dataloader"""
@@ -24,7 +25,7 @@ class dataloader(Dataset):
 				ret, frame = cap.read()
 				if frame is None:
 					break
-				if ret:
+				if ret and np.sum(frame) != 0:
 					self.len += 1
 					self.filenframe_idx.append([fileIdx, frameIdx])
 					frameIdx += 1
