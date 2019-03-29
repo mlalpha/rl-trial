@@ -59,6 +59,8 @@ class vae_module(object):
 	def VAE_loss(self, out, target, mean, logvar):
 		category1 = nn.BCELoss()
 		bce_loss = category1(out, target)
+		print("BCELoss: ", bce_loss.data.cpu().sum().numpy())
+		print("MSELoss: ", nn.MSELoss()(out.float(), target.float()).data.cpu().numpy())
 		
 		#We will scale the following losses with this factor
 		scaling_factor = out.shape[0]*out.shape[1]*out.shape[2]*out.shape[3]
