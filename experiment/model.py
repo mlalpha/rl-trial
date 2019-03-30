@@ -9,7 +9,7 @@ class QNetwork(nn.Module):
         """Initialize parameters and build model.
         Params
         ======
-            state_size (int): Dimension of each state
+            state_size (int): Dimension of each state, latent size of VAE
             action_size (int): Dimension of each action
             seed (int): Random seed
             fc1_units (int): Number of nodes in first hidden layer
@@ -17,15 +17,7 @@ class QNetwork(nn.Module):
         """
         super(QNetwork, self).__init__()
         self.seed = torch.manual_seed(seed)
-        filter_size_1 = 2
-        self.conv1 = nn.Conv2d(3, 20, filter_size_1)
-        self.conv1_bn = nn.BatchNorm2d(20)
-        filter_size_2 = 4
-        self.conv2 = nn.Conv2d(20, 20, filter_size_2)
-        self.conv2_bn = nn.BatchNorm2d(20)
-        flattened_size = (state_size[0]-filter_size_1-filter_size_2-2) \
-                         *(state_size[1]-filter_size_1-filter_size_2-2) \
-                         *20 // 16
+        flattened_size = state_size
         # print(flattened_size)
         self.fc1 = nn.Linear(
             flattened_size
