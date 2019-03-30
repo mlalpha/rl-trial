@@ -7,6 +7,7 @@ import numpy as np
 from collections import deque
 import matplotlib.pyplot as plt
 from tool import preprocess
+from encode_state_util import vae_encoder
 
 
 # Import environment and get env infor
@@ -15,6 +16,7 @@ from tool import preprocess
 env, multi_action = make_env(stack=False, scale_rew=False), False
 
 env.seed(1)
+# change to VAE encoder output size (latent size)
 state_space = list(env.observation_space.shape)
 action_space = env.action_space.n
 print('State shape: ', state_space)
@@ -62,6 +64,7 @@ def dqn(n_episodes=10000, max_t=4500, eps_start=1.0, eps_end=0.2, eps_decay=0.99
         max_Q_value = 0
         negative_reward = 0
         for _ in range(max_t):
+            # VAE encode here
             action, Q_value = agent.act(state, eps)
             if Q_value != None:
                 if score + Q_value > max_Q_value:
