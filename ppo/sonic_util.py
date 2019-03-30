@@ -14,7 +14,8 @@ def make_env(stack=True, scale_rew=True):
     Create an environment with some standard wrappers.
     """
    #env = grc.RemoteEnv('tmp/sock')
-    env = make(game='SonicTheHedgehog-Genesis', state='LabyrinthZone.Act1')
+   #LabyrinthZone.Act1
+    env = make(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1')
     env = SonicDiscretizer(env)
     if scale_rew:
         env = RewardScaler(env)
@@ -31,8 +32,8 @@ class SonicDiscretizer(gym.ActionWrapper):
     def __init__(self, env):
         super(SonicDiscretizer, self).__init__(env)
         buttons = ["B", "A", "MODE", "START", "UP", "DOWN", "LEFT", "RIGHT", "C", "Y", "X", "Z"]
-        actions = [[], ['LEFT'], ['DOWN', 'B'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN'],
-                   ['RIGHT'], ['B']]
+        actions = [[], ['LEFT'], ['RIGHT'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN'],
+                ['DOWN', 'B'], ['B']]
         self._actions = []
         for action in actions:
             arr = np.array([False] * 12)
