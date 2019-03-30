@@ -1,7 +1,4 @@
 # VAE
-VAE model1 finished, dataloader finished
-
-For model to train, save and load not finished
 
 ## dataloader
 require opencv-python version 3.1 or above
