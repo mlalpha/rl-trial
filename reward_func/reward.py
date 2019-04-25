@@ -4,39 +4,59 @@ import utilities
 import numpy as np
 
 MAX_REWARD = 1
-rewards = []
+# WIN = 
+# LOSS = 
+# FOUL = 
+END_GAME = [WIN, LOSS, FOUL]
+reward = 0
+is_train = True
 model = None
 hidden = None
 optimizer = None
 largest_reward = 0
 criterion = None
 
-def reward_trans(old_reward, state):
-	global rewards
+def reward_trans(raw_reward, state):
+	# GRU predict reward train here
+	if state in END_GAME:
+		# if FOUL then end game, can also be FOUL then choose second best action
+		if state is WIN:
+			utilities.reward_store(MAX_REWARD)
+		else:
+			utilities.reward_store(-MAX_REWARD)
+		for step, slope in zip(utilities.get_episode()):
+		    # train(state, reward_record)
+			train(step, slope)
+		utilities.new_episode()
+		return raw_reward
+
+	global model, reward, is_train
 	# store this state and get some cloesest distance (smallest)
 	k = 4000
-	new_reward = np.asarray(utilities.store(state, k)).mean() * MAX_REWARD
+	curiosity_reward = np.asarray(utilities.state_store(state, k)).mean() * MAX_REWARD
 
-	pre_reward = rewards[-1]
-	rewards.append(old_reward)
-	old_reward = pre_reward * 0.9999 + math.abs(pre_reward - old_reward)
+	suprise_reward = 0
+	# if model predict slope * MAX_REWARD < 0 and something
+
+	utilities.reward_store(raw_reward)
+	env_reward = 0 # GRU predict reward slope
+	if is_train:
+		reward = reward * 0.9999 + math.abs(reward - env_reward)
+	else:
+		reward = some how suprise_reward
 
 	# merge new & old reward
-	new_reward *= old_reward
-	# GRU predict bad reward? (window size 30)
-	# for 100 frame, train
-    # train(state, reward_record)
+	reward *= curiosity_reward
 
-	if new_reward > largest_reward:
-		largest_reward = new_reward
-	new_reward /= largest_reward
+	if reward > largest_reward:
+		largest_reward = reward
+	reward /= largest_reward
 
-	return new_reward
+	return reward
 
 
 def reward_init():
-	global rewards, model, hidden, optimizer, criterion
-	rewards = []
+	global model, hidden, optimizer, criterion
 	# release GRU
 	utilities.init()
 
