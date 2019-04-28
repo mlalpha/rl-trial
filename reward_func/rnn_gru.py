@@ -2,43 +2,38 @@ import torch
 import torch.nn
 
 class RNN(nn.Module):
+    def __init__(self, INPUT_SIZE=1, HIDDEN_SIZE=32, NUM_LAYERS=1):
+        super(RNN, self).__init__()
 
-	def __init__(self, seq_len, num_output,
-				 hidden_size=64, num_layers=1):
-		super(RNN, self).__init__()
-		self.use_last = use_last
-		self.hidden_size = hidden_size
-		self.drop_en = nn.Dropout(p=0.6)
+        self.rnn = nn.GRU(
+            input_size=INPUT_SIZE,
+            hidden_size=HIDDEN_SIZE,     # rnn hidden unit
+            num_layers=NUM_LAYERS,       # number of rnn layer
+            batch_first=True,   # input & output will has batch size as 1s dimension. e.g. (batch, time_step, input_size)
+        )
+        self.out = nn.Linear(32, 1)
 
-		# rnn module
-		self.rnn = nn.GRU( input_size=seq_len, hidden_size=hidden_size,
-							num_layers=num_layers, dropout=0.5,
-							bidirectional=True)
+    def forward(self, x, h_state):
+        # x (batch, time_step, input_size)
+        # h_state (n_layers, batch, hidden_size)
+        # r_out (batch, time_step, hidden_size)
+        r_out, h_state = self.rnn(x, h_state)
 
-		self.bn2 = nn.BatchNorm1d(hidden_size*2)
-		self.fc = nn.Linear(hidden_size*2, num_output)
+        outs = []    # save all predictions
+        for time_step in range(r_out.size(1)):    # calculate output for each time step
+            outs.append(self.out(r_out[:, time_step, :]))
+        return torch.stack(outs, dim=1), h_state
 
-	def forward(self, x, seq_lengths):
-		'''
-		Args:
-			x: (batch, time_step, input_size)
-		Returns:
-			num_output size
-		'''
+        # instead, for simplicity, you can replace above codes by follows
+        # r_out = r_out.view(-1, 32)
+        # outs = self.out(r_out)
+        # outs = outs.view(-1, TIME_STEP, 1)
+        # return outs, h_state
+        
+        # or even simpler, since nn.Linear can accept inputs of any dimension 
+        # and returns outputs with same dimension except for the last
+        # outs = self.out(r_out)
+        # return outs
 
-		output, ht = self.rnn(x, None)
-
-		row_indices = torch.arange(0, x.size(0)).long()
-		col_indices = seq_lengths - 1
-		if next(self.parameters()).is_cuda:
-			row_indices = row_indices.cuda()
-			col_indices = col_indices.cuda()
-
-		last_tensor=output[row_indices, col_indices, :]
-
-		fc_input = self.bn2(last_tensor)
-		out = self.fc(fc_input)
-		return out
-
-	def initHidden(self, N):
-		return Variable(torch.randn(1, N, self.hidden_size))
+    def initHidden():
+    	return None
