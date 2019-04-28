@@ -67,9 +67,9 @@ def get_episode(e=-1):
 	return state_storage[e], reward_slope
 
 
-def get_last_reward():
+def get_reward(ep=-1, index=-1):
 	global reward_storage
-	return reward_storage[-1][-1]
+	return reward_storage[ep][index]
 
 
 def state_similarity(s, n=5):
