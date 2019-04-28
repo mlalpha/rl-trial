@@ -61,10 +61,10 @@ def get_episode(e=-1):
 			f = math.cos
 		for j in range(1, i[0]*2):
 			reward[x] += f(c*j) * i[1]
-	reward_slope = []
-	for i in range(len(reward_storage[e])):
-		reward_slope.append(reward[i + 1] - reward[i])
-	return state_storage[e], reward_slope
+	# reward_slope = []
+	# for i in range(len(reward_storage[e])):
+	# 	reward_slope.append(reward[i + 1] - reward[i])
+	return state_storage[e], reward_storage[e][:len(reward_storage[e])]
 
 
 def get_reward(ep=-1, index=-1):
