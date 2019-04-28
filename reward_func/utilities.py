@@ -35,7 +35,12 @@ def state_store(s, n=0):
 
 def reward_store(r):
 	global reward_storage
-	reward_storage.append(r)
+	reward_storage[-1].append(r)
+
+
+def reward_replace(r, ep=-2):
+	global reward_storage
+	reward_storage[ep] = r
 
 
 def _search_none_zero_elements(l):
