@@ -8,8 +8,7 @@ WIN = 0
 LOSS = 1
 FOUL = 2
 END_GAME = [WIN, LOSS, FOUL]
-reward = 0
-is_train = True
+rewards = []
 model = None
 hidden = None
 optimizer = None
@@ -19,6 +18,7 @@ LR = 0.01
 
 def reward_trans(raw_reward, state):
 	# GRU predict reward train here
+	utilities.reward_store(raw_reward)
 	if state in END_GAME:
 		# if FOUL then end game, can also be FOUL then choose second best action
 		if state == WIN:
@@ -29,38 +29,51 @@ def reward_trans(raw_reward, state):
 		for step, reward in zip(states, rewards):
 			train_rnn(step, reward)
 		utilities.new_episode()
-		return raw_reward
 
-	global model, reward
-	# store this state and get some cloesest distance (smallest)
-	k = 4000
-	curiosity_reward = np.asarray(utilities.state_store(state, k)).mean() * MAX_REWARD
-	store_reward = raw_reward
-
-	env_reward = 0 # GRU predict reward slope
-	reward = curiosity_reward#reward * 0.9999 + math.abs(reward - env_reward)
-	if not is_train:
-		# states = utilities.get_episode()[-100:]
-		# if len(states) < seq_len:
-		# 	states.unshift(0)
-		predicted_reward = model(state, var(hidden.data))
-		if suprised: # suprised
-			reward += sth # suprise_reward
-			store_reward = suprise_reward
-
-	if reward > largest_reward:
-		largest_reward = reward
-	reward /= largest_reward
-	if largest_reward > MAX_REWARD:
-		largest_reward *= 0.999999
-
-	utilities.reward_store(store_reward)
-	return reward
+		return _reward_replay(states, rewards)
+	return None
 
 
-def reward_replay():
-	pass
-	
+def _reward_replay(states, rewards):
+	rewardLst = []
+
+	predicted_rewards = []
+
+	for state in states:
+		predicted_rewards.append(predict_rnn(state))
+
+	for state, reward, predicted_reward in zip(states, rewards, predicted_rewards[1:]):
+		# store this state and get some cloesest distance (smallest)
+		k = 4000
+		curiosity_reward = np.asarray(utilities.state_store(state, k)).mean() * MAX_REWARD
+
+		final_reward = curiosity_reward #reward * 0.9999 + math.abs(reward - env_reward)
+
+		if predicted_reward < 0 and reward >= 0: # suprised
+			final_reward += reward - predicted_reward # suprise_reward
+		elif predicted_reward < 0 and reward < 0:
+			final_reward += reward
+		elif predicted_reward > 0 and reward < 0:
+			final_reward -= predicted_reward
+
+		if final_reward > largest_reward:
+			largest_reward = final_reward
+		final_reward /= largest_reward
+		if largest_reward > MAX_REWARD:
+			largest_reward *= 0.999999
+		if final_reward < -MAX_REWARD:
+			final_reward = -MAX_REWARD
+
+		rewardLst.append(final_reward)
+
+	utilities.reward_replace(rewardLst)
+	return rewardLst
+
+
+def reward_replay(ep=-1):
+	_, r = utilities.get_episode(ep)
+	return r
+
 
 def reward_init(state_size, win_state, loss_state, foul_state,
 				rnn_hidden_size=32, rnn_num_layers=2):
