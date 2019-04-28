@@ -8,28 +8,26 @@ The reward system will be divided into two parts:
 This part cannot be saved with model before it has been encaptured into class
 
 ## exploring reward
-Store states (output of CNN/VAE intermediate result) and use Cosine distance as reward, encourage actor try if new state of environment can been found. To encourage actor try more on new observation, K-Mean was introduced to keep reward for observing states not oftenly seen by actor.
+Store states (output of CNN/VAE intermediate result) and use the mean Cosine distance of K nearest as reward, encourage actor to explore new states of the environment.
 
 ## mistake avoid reward
 - Punishment on mistake  
 - Reward on avoid mistake  
 
-Train RNN on last 100 states for game play fails  
-RNN predict if actor will fail or not base on states  
-
-```
-reward_t = reward_(t-1) * 0.9999 + abs(reward_(t-1) - reward_system)
-```
-
 ### RNN (GRU)
-input = [sequence_of_states, reward_t]
-output = predict possibility of fail
+input = [state, reward_t]
+output = predict_next_reward
 
-if RNN expected possible fail, then `reward_t -= possibility_of_fail * FAIL_PUNISH`
+the possibility of loss the game = `predict_next_reward - previous_prediction`
 
-if actor did not fail, then `reward_t += possibility_of_fail * MAX_REWARD` or replace `MAX_REWARD` with `2 * mean_reward`?
+if RNN expected possible fail, then `reward_t += possibility_of_fail * FAIL_PUNISH`
 
-training data: FAIL_PUNISH as a quadratic function, root from bad end (reward = FAIL_PUNISH) trace backward to the previous state where action != no_action (reward = 0)
+if actor did not fail, then `reward_t += possibility_of_fail * MAX_REWARD`
+
+#### training data: 
+`possibility_of_fail = reward_at_next_frame`
+
+`possibility_of_fail` is `slope`, `y` is the final reward (win/loss/foul) and `x` is step in time. For reawrd foul lead to a tangent at the action/step while win/loss lead to slope
 
 https://github.com/keishinkickback/Pytorch-RNN-text-classification
 
