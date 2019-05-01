@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-import math
+import numpy as np
 
 state_storage = []
 reward_storage = []
@@ -55,21 +55,31 @@ def _search_none_zero_elements(l):
 
 def get_episode(e=-1):
 	global state_storage, reward_storage
-	# calc reward_storage[e] to slope/tangent
-	r = _search_none_zero_elements(reward_storage[e])
-	reward = []
+	return state_storage[e], reward_storage[e][:len(reward_storage[e])]
+
+
+def reward_to_wave(raw_reward):
+	r = _search_none_zero_elements(raw_reward)
+	reward = [] # use ndarray
 	for i in r:
-		c = math.pi / i[0]
-		if i[1] < 0:
-			f = math.sin
-		else:
-			f = math.cos
-		for j in range(1, i[0]*2):
-			reward[x] += f(c*j) * i[1]
+		reward += peak_to_wave(i[0], i[1])
 	# reward_slope = []
 	# for i in range(len(reward_storage[e])):
 	# 	reward_slope.append(reward[i + 1] - reward[i])
-	return state_storage[e], reward_storage[e][:len(reward_storage[e])]
+	return reward
+
+
+def peak_to_wave(x, strength):
+	steps = np.linspace(0, np.pi, x*2, dtype=np.float32)
+	return np.sin(steps) * strength
+
+
+def wave_merge(wave_a, wave_b):
+	if len(wave_a) < len(wave_b):
+		wave_a.resize(wave_b.shape)
+	else:
+		wave_b.resize(wave_a.shape)
+	return wave_a + wave_b
 
 
 def get_reward(ep=-1, index=-1):
