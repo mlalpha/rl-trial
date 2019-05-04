@@ -25,52 +25,49 @@ def reward_trans(raw_reward, state):
 			utilities.reward_store(MAX_REWARD)
 		else:
 			utilities.reward_store(-MAX_REWARD)
-		states, rewards = utilities.get_episode()
+		states, raw_rewards = utilities.get_episode()
+		rewards = _reward_replay(states, raw_rewards)
 		for step, reward in zip(states, rewards):
 			train_rnn(step, reward)
 		utilities.new_episode()
 
-		return _reward_replay(states, rewards)
+		return rewards
 	return None
 
 
-def _reward_replay(states, rewards):
-	rewardLst = []
+def _reward_replay(states, rewards): # for first time internal replay
+	baseReward = reward_to_wave(rewards)
 
 	predicted_rewards = []
-
 	for state in states:
 		predicted_rewards.append(predict_rnn(state))
+	supriseReward = baseReward - np.asarray(predicted_rewards)
 
+	curiosity_rewards = []
 	for state, reward, predicted_reward in zip(states, rewards, predicted_rewards[1:]):
 		# store this state and get some cloesest distance (smallest)
 		k = 4000
-		curiosity_reward = np.asarray(utilities.state_store(state, k)).mean() * MAX_REWARD
+		curiosity = np.asarray(utilities.state_store(state, k)).mean() * MAX_REWARD
+		curiosity_rewards.append(curiosity)
+	curiousReward = np.asarray(curiosity_rewards)
 
-		final_reward = curiosity_reward #reward * 0.9999 + math.abs(reward - env_reward)
+	finalReward = curiousReward + supriseReward
 
-		if predicted_reward < 0 and reward >= 0: # suprised
-			final_reward += reward - predicted_reward # suprise_reward
-		elif predicted_reward < 0 and reward < 0:
-			final_reward += reward
-		elif predicted_reward > 0 and reward < 0:
-			final_reward -= predicted_reward
+	if np.max(finalReward) > largest_reward:
+			largest_reward = np.max(finalReward)
+	positive_mask = finalReward > 0
+	finalReward[positive_mask] /= largest_reward
+	if largest_reward > MAX_REWARD:
+		largest_reward *= 0.999999
+	finalReward = np.clip(finalReward, -MAX_REWARD, MAX_REWARD)
 
-		if final_reward > largest_reward:
-			largest_reward = final_reward
-		final_reward /= largest_reward
-		if largest_reward > MAX_REWARD:
-			largest_reward *= 0.999999
-		if final_reward < -MAX_REWARD:
-			final_reward = -MAX_REWARD
+	final_reward = finalReward.tolist()
 
-		rewardLst.append(final_reward)
-
-	utilities.reward_replace(rewardLst)
-	return rewardLst
+	utilities.reward_replace(final_reward)
+	return final_reward
 
 
-def reward_replay(ep=-1):
+def reward_replay(ep=-2):
 	_, r = utilities.get_episode(ep)
 	return r
 
