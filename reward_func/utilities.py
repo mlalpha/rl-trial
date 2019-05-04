@@ -60,7 +60,7 @@ def get_episode(e=-1):
 
 def reward_to_wave(raw_reward):
 	r = _search_none_zero_elements(raw_reward)
-	reward = [] # use ndarray
+	reward = np.zeros(len(raw_reward))
 	for i in r:
 		reward += peak_to_wave(i[0], i[1])
 	# reward_slope = []
