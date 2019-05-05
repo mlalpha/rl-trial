@@ -1,3 +1,13 @@
+# How to use
+
+import reward.py
+
+Initialize the module, use `reward_init()` and specify the state_size of each step in the game, define the WIN/LOSS/FOUL state for the module to recognize the End of State sequence and classify is it a Good end or a Bad end.
+
+Call `reward_trans(state)` to store the state of the step in the game, when the state of WIN/LOSS/FOUL passes to the function, it will return the rewards for offline training.
+
+You can obtain earlier game episode rewards with `reward_replay(-2)` -1 for current game, -2 for the rewards of the last game, -3 for earlier...
+
 # Reward engineering
 The determine a good action and reinforce it may be important
 
