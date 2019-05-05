@@ -16,9 +16,9 @@ largest_reward = 0
 criterion = None
 LR = 0.01
 
-def reward_trans(raw_reward, state):
+def reward_trans(state, raw_reward=None):
 	# GRU predict reward train here
-	utilities.reward_store(raw_reward)
+	# utilities.reward_store(raw_reward)
 	if state in END_GAME:
 		# if FOUL then end game, can also be FOUL then choose second best action
 		if state == WIN:
